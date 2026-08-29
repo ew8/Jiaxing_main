@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>产品手册</title>
+</head>
+<body>
+  <p id="wechat-tip" hidden>
+    预览若无法显示，请点右上角 · 在浏览器打开
+  </p>
+  <p>
+    <a id="download" href="./tank.pdf">下载 PDF</a>
+  </p>
+  <canvas id="pdf-canvas"></canvas>
+  <script src="/assets/pdf.min.js"></script>
+  <script>
+    (function () {
+      var inWeChat = /MicroMessenger/i.test(navigator.userAgent);
+      if (inWeChat) {
+        document.getElementById("wechat-tip").hidden = false;
+      }
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "/assets/pdf.worker.min.js";
+      pdfjsLib.getDocument("./catalog.pdf").promise.then(function (pdf) {
+        return pdf.getPage(1);
+      }).then(function (page) {
+        var canvas = document.getElementById("pdf-canvas");
+        var ctx = canvas.getContext("2d");
+        var viewport = page.getViewport({ scale: 1.2 });
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        return page.render({ canvasContext: ctx, viewport: viewport }).promise;
+      });
+    })();
+  </script>
+</body>
+</html>
