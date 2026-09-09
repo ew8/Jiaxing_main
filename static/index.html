@@ -1,40 +1,260 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>产品手册</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PDF 文档</title>
+    <style>
+        /* ========== 基础重置与背景 ========== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #1f2937;
+        }
+
+        /* ========== 主卡片容器 ========== */
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 380px;
+            padding: 40px 30px 30px;
+            text-align: center;
+            animation: fadeInUp 0.6s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== 顶部图标与标题 ========== */
+        .icon-wrapper {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 8px 16px rgba(255, 117, 140, 0.3);
+        }
+
+        .icon-wrapper svg {
+            width: 36px;
+            height: 36px;
+            fill: white;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #111827;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+
+        /* ========== 按钮组 ========== */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px 0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            outline: none;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 预览按钮 (主按钮) */
+        .btn-preview {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        .btn-preview:hover {
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-preview svg { fill: white; }
+
+        /* 下载按钮 (次按钮) */
+        .btn-download {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        .btn-download:hover {
+            background: #e5e7eb;
+        }
+        .btn-download svg { fill: #4b5563; }
+
+        /* ========== 底部倒计时区域 ========== */
+        .countdown-area {
+            border-top: 1px solid #f3f4f6;
+            padding-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            width: 100%;
+            /* 核心动画：5秒内从 100% 缩减到 0% */
+            animation: progress-shrink 5s linear forwards;
+        }
+
+        @keyframes progress-shrink {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        .countdown-text {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        .countdown-text span {
+            color: #4f46e5;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums; /* 防止数字跳动 */
+        }
+    </style>
 </head>
 <body>
-  <p id="wechat-tip" hidden>
-    预览若无法显示，请点右上角 · 在浏览器打开
-  </p>
-  <p>
-    <a id="download" href="./24v7_2026_v1_0.pdf">点击下载说明文档</a>
-  </p>
-    <p>
-    <a id="download" href="./24v7_2026_v1_0.pdf">click to download the Instruction manual</a>
-  </p>
-  <canvas id="pdf-canvas"></canvas>
-  <script src="/assets/pdf.min.js"></script>
-  <script>
-    (function () {
-      var inWeChat = /MicroMessenger/i.test(navigator.userAgent);
-      if (inWeChat) {
-        document.getElementById("wechat-tip").hidden = false;
-      }
-      pdfjsLib.GlobalWorkerOptions.workerSrc = "/assets/pdf.worker.min.js";
-      pdfjsLib.getDocument("./24v7_2026_v1_0.pdf").promise.then(function (pdf) {
-        return pdf.getPage(1);
-      }).then(function (page) {
-        var canvas = document.getElementById("pdf-canvas");
-        var ctx = canvas.getContext("2d");
-        var viewport = page.getViewport({ scale: 1.2 });
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        return page.render({ canvasContext: ctx, viewport: viewport }).promise;
-      });
-    })();
-  </script>
+
+    <div class="card">
+        <!-- 顶部图标 -->
+        <div class="icon-wrapper">
+            <!-- PDF 文件图标 -->
+            <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M9,13V19H7V13H9M15,15.5V17H13V15.5H15M13,11V12.5H15V11H13M17,13V19H15V13H17Z" /></svg>
+        </div>
+
+        <!-- 标题与说明 -->
+        <h1>PDF 技术文档已就绪</h1>
+        <p class="subtitle">请选择在线预览或下载到本地</p>
+
+        <!-- 按钮组 -->
+        <div class="btn-group">
+            <!-- 预览按钮 -->
+            <button class="btn btn-preview" id="btnPreview">
+                <svg viewBox="0 0 24 24"><path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" /></svg>
+                在线预览
+            </button>
+            
+            <!-- 下载按钮 -->
+            <button class="btn btn-download" id="btnDownload">
+                <svg viewBox="0 0 24 24"><path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" /></svg>
+                下载文件
+            </button>
+        </div>
+
+        <!-- 倒计时提示 -->
+        <div class="countdown-area">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <p class="countdown-text"><span id="timer">5</span> 秒后自动进入预览</p>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ⚠️ 在这里填入你的真实 URL
+        // ==========================================
+        const DOWNLOAD_URL = './24v7_2026_v1_0.pdf'; // 例如: 'https://xxx.com/file.pdf'
+        const PREVIEW_URL  = './preview.html'; // 例如: 'https://xxx.com/preview.html'
+        // ==========================================
+
+        const btnDownload = document.getElementById('btnDownload');
+        const btnPreview  = document.getElementById('btnPreview');
+        const timerEl     = document.getElementById('timer');
+        const progressEl  = document.getElementById('progress');
+
+        let timeLeft = 8;
+        let intervalId;
+
+        // 启动倒计时
+        function startCountdown() {
+            intervalId = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(intervalId);
+                    // 时间到，自动跳转预览
+                    if (PREVIEW_URL) {
+                        window.location.href = PREVIEW_URL;
+                    } else {
+                        console.warn('自动跳转失败：PREVIEW_URL 未配置');
+                    }
+                }
+            }, 1000);
+        }
+
+        // 清除倒计时并跳转
+        function navigateTo(url, type) {
+            clearInterval(intervalId); // 停止倒计时
+            if (url) {
+                window.location.href = url;
+            } else {
+                alert(`${type}地址未配置，请在代码中填入 URL`);
+            }
+        }
+
+        // 绑定点击事件
+        btnDownload.addEventListener('click', () => navigateTo(DOWNLOAD_URL, '下载'));
+        btnPreview.addEventListener('click', () => navigateTo(PREVIEW_URL, '预览'));
+
+        // 页面加载完成后开始倒计时
+        startCountdown();
+    </script>
+
 </body>
 </html>
