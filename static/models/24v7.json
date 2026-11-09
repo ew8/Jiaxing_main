@@ -5,7 +5,7 @@
   "displayName": "12FM7(24V7AH)",
   "brand": {
     "name": "XINLEINA",
-    "logo": "./assets/24v7/xinleina-logo.jpg"
+    "logo": "./assets/common/xinleina-logo.jpg"
   },
   "specifications": [
     {
@@ -57,27 +57,27 @@
   "certifications": [
     {
       "key": "ul",
-      "src": "./assets/24v7/ul-mark.jpg",
+      "src": "./assets/common/ul-mark.jpg",
       "alt": "UL recognized component MH48334"
     },
     {
       "key": "ce",
-      "src": "./assets/24v7/ce-mark.jpg",
+      "src": "./assets/common/ce-mark.jpg",
       "alt": "CE"
     },
     {
       "key": "recycle",
-      "src": "./assets/24v7/pb-recycle.jpg",
+      "src": "./assets/common/pb-recycle.jpg",
       "alt": "Lead recycling symbol"
     },
     {
       "key": "extinguisher",
-      "src": "./assets/24v7/fire-extinguisher.jpg",
+      "src": "./assets/common/fire-extinguisher.jpg",
       "alt": "Dry powder fire extinguisher"
     },
     {
       "key": "disposal",
-      "src": "./assets/24v7/pb-disposal.jpg",
+      "src": "./assets/common/pb-disposal.jpg",
       "alt": "Do not dispose of battery in household waste"
     }
   ],
