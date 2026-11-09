@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "default": "12V7",
+  "models": {
+    "24V7": {
+      "id": "24v7",
+      "file": "./models/24v7.json",
+      "aliases": [
+        "24V7",
+        "12FM7(24V7AH)"
+      ]
+    },
+    "12V7": {
+      "id": "12v7",
+      "file": "./models/12v7.json",
+      "aliases": [
+        "12V7",
+        "12FM7(12V7AH)"
+      ]
+    }
+  }
+}

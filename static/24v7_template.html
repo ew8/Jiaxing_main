@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>12FM7 Industrial Batteries</title>
+  <style>
+    :root {
+      --paper-width: 595.3pt;
+      --paper-height: 841.9pt;
+      --ink: #000;
+      --canvas: #edf1f4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent 220px),
+        var(--canvas);
+      color: var(--ink);
+      font-family: Calibri, "Segoe UI", Arial, sans-serif;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      padding: 14px 18px;
+      background: rgba(237, 241, 244, 0.92);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(14px);
+    }
+
+    .toolbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      width: min(100%, 980px);
+    }
+
+    .toolbar-title {
+      min-width: 0;
+      overflow: hidden;
+      color: #26313c;
+      font-size: 14px;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+    }
+
+    .button:active {
+      transform: translateY(1px);
+    }
+
+    .button-secondary {
+      background: #fff;
+      color: #26313c;
+      border-color: #cfd8e0;
+    }
+
+    .button-secondary:hover {
+      border-color: #98a8b7;
+    }
+
+    .button-primary {
+      background: #176b55;
+      color: #fff;
+    }
+
+    .button-primary:hover {
+      background: #125844;
+    }
+
+    .button:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+
+    .preview {
+      padding: 30px 16px 56px;
+    }
+
+    .paper-stage {
+      position: relative;
+      width: min(100%, 990px);
+      margin: 0 auto;
+    }
+
+    .paper {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: var(--paper-width);
+      height: var(--paper-height);
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 18px 55px rgba(16, 30, 42, 0.16);
+      transform-origin: top left;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .page-title,
+    .model-title,
+    .specs,
+    .warning-title,
+    .warning-copy,
+    .table-heading,
+    .materials-table {
+      position: absolute;
+      margin: 0;
+      color: var(--ink);
+    }
+
+    .page-title {
+      top: 41.85pt;
+      left: 76.56pt;
+      font-size: 14.05pt;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .model-title {
+      top: 117.07pt;
+      left: 76.56pt;
+      font-size: 18pt;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .brand-logo {
+      position: absolute;
+      z-index: 2;
+      top: 159.14pt;
+      left: 285.56pt;
+      width: 250.87pt;
+      height: 110.73pt;
+      object-fit: fill;
+    }
+
+    .specs {
+      top: 149.77pt;
+      left: 76.56pt;
+      width: 468pt;
+      font-size: 10.45pt;
+      font-weight: 400;
+      line-height: 13.98pt;
+    }
+
+    .specs p {
+      margin: 0 0 9.42pt;
+      line-height: 13.98pt;
+    }
+
+    .dynamic-value {
+      font: inherit;
+      color: inherit;
+    }
+
+    .warning-icon {
+      position: absolute;
+      top: 407.04pt;
+      left: 69.6pt;
+      width: 15.96pt;
+      height: 13.32pt;
+      object-fit: fill;
+    }
+
+    .warning-title {
+      top: 407.03pt;
+      left: 87pt;
+      font-size: 10.45pt;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .warning-title::after {
+      content: ":";
+    }
+
+    .warning-copy {
+      top: 430.57pt;
+      left: 76.56pt;
+      width: 470pt;
+      font-size: 10.45pt;
+      font-weight: 400;
+      line-height: 23.4pt;
+    }
+
+    .warning-copy span {
+      display: block;
+    }
+
+    .cert-ul,
+    .cert-ce,
+    .cert-recycle,
+    .cert-extinguisher,
+    .cert-disposal {
+      position: absolute;
+      object-fit: fill;
+    }
+
+    .cert-ul {
+      top: 572.47pt;
+      left: 85.56pt;
+      width: 78.23pt;
+      height: 54.91pt;
+    }
+
+    .cert-ce {
+      top: 572.47pt;
+      left: 171.52pt;
+      width: 108.47pt;
+      height: 60.01pt;
+    }
+
+    .cert-recycle {
+      top: 479.81pt;
+      left: 81.88pt;
+      width: 75.55pt;
+      height: 82.61pt;
+    }
+
+    .cert-extinguisher {
+      top: 477.58pt;
+      left: 172.8pt;
+      width: 89.01pt;
+      height: 87.07pt;
+    }
+
+    .cert-disposal {
+      top: 499.43pt;
+      left: 426.01pt;
+      width: 85.53pt;
+      height: 125.99pt;
+    }
+
+    .table-heading {
+      top: 633.23pt;
+      left: 76.56pt;
+      font-size: 10.45pt;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .materials-table {
+      top: 652.2pt;
+      left: 75.95pt;
+      width: 451.2pt;
+      height: 82.24pt;
+      table-layout: fixed;
+      border-collapse: collapse;
+      font-size: 10.45pt;
+      line-height: 1;
+    }
+
+    .materials-table col:nth-child(1) {
+      width: 149.8pt;
+    }
+
+    .materials-table col:nth-child(2) {
+      width: 102.2pt;
+    }
+
+    .materials-table col:nth-child(3) {
+      width: 102.2pt;
+    }
+
+    .materials-table col:nth-child(4) {
+      width: 97pt;
+    }
+
+    .materials-table th,
+    .materials-table td {
+      height: 16.1pt;
+      padding: 0 3pt;
+      border: 0.48pt solid #000;
+      font-weight: 400;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .materials-table th {
+      font-weight: 400;
+    }
+
+    @media (max-width: 720px) {
+      .toolbar {
+        padding: 10px 12px;
+      }
+
+      .toolbar-inner {
+        gap: 12px;
+      }
+
+      .toolbar-title {
+        font-size: 13px;
+      }
+
+      .button {
+        min-height: 38px;
+        padding: 0 13px;
+        font-size: 13px;
+      }
+
+      .preview {
+        padding: 18px 10px 34px;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      .toolbar {
+        display: none !important;
+      }
+
+      .preview {
+        padding: 0;
+      }
+
+      .paper-stage {
+        width: auto;
+        height: auto !important;
+      }
+
+      .paper {
+        position: static;
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        box-shadow: none;
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <div class="toolbar-inner">
+      <div class="toolbar-title" id="toolbar-title">12FM7 Industrial Batteries</div>
+      <div class="toolbar-actions">
+        <button class="button button-secondary" id="print-button" type="button">Print</button>
+        <button class="button button-primary" id="download-button" type="button">Download PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="preview">
+    <div class="paper-stage" id="paper-stage">
+      <article class="paper" id="paper" data-template="24v7">
+        <h1 class="page-title">12FM7 Industrial Batteries</h1>
+        <p class="model-title">
+          Model: <span class="dynamic-value" data-field="value1">12FM7(24V7AH)</span>
+        </p>
+
+        <img class="brand-logo" src="./assets/24v7/xinleina-logo.jpg" alt="XINLEINA">
+
+        <section class="specs" aria-label="Battery specifications">
+          <p>Model Name: Valve Regulated Lead-acid Battery</p>
+          <p>Rechargeable and non-spillable Battery</p>
+          <p>Battery Type: Industrial Batteries</p>
+          <p>Battery Size: 187x102x94mm</p>
+          <p>Rated Capacity: 7Ah</p>
+          <p>Rated Voltage: 24V</p>
+          <p>Weight: 4.07KG (±3%)</p>
+          <p>Chemistry: Lead (Pb,PbO<sub>2</sub>,PbSO<sub>4</sub>)</p>
+          <p>
+            Manufacturer:
+            <span class="dynamic-value" data-field="value2">SHANGHAI XINLEINA BABY CARS ACCESSORIES CO., LTD.</span>
+          </p>
+          <p>Address: Zhenlv Industry Area, Lüxiang Town, Jinshan District, Shanghai City, China, Post Code:201517</p>
+          <p>Email: sales@xlnbattery.com&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone: +86 021 57375252</p>
+        </section>
+
+        <img class="warning-icon" src="./assets/24v7/warning-triangle.jpg" alt="">
+        <p class="warning-title">WARNING</p>
+        <p class="warning-copy">
+          <span>To reduce risk of fire or burns, do not open, do not disassemble, do not crush, do not puncture,</span>
+          <span>do not dispose in fire or water, do not short external contacts. Fire can be put out with a fire extinguisher.</span>
+        </p>
+
+        <img class="cert-ul" src="./assets/24v7/ul-mark.jpg" alt="UL recognized component MH48334">
+        <img class="cert-ce" src="./assets/24v7/ce-mark.jpg" alt="CE">
+        <img class="cert-recycle" src="./assets/24v7/pb-recycle.jpg" alt="Lead recycling symbol">
+        <img class="cert-extinguisher" src="./assets/24v7/fire-extinguisher.jpg" alt="Dry powder fire extinguisher">
+        <img class="cert-disposal" src="./assets/24v7/pb-disposal.jpg" alt="Do not dispose of battery in household waste">
+
+        <h2 class="table-heading">Raw materials and components table</h2>
+        <table class="materials-table">
+          <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+          </colgroup>
+          <tbody>
+            <tr>
+              <th>Components</th>
+              <th>CAS NO</th>
+              <th>TLV</th>
+              <th>%Wt</th>
+            </tr>
+            <tr>
+              <td>Lead(Pb,PbO<sub>2</sub>,PbSO<sub>4</sub>)</td>
+              <td>7439-92-1</td>
+              <td>0.05mg/m<sup>3</sup></td>
+              <td>About 70%</td>
+            </tr>
+            <tr>
+              <td>Sulfuric Acid</td>
+              <td>7664-93-9</td>
+              <td>1mg/m<sup>3</sup></td>
+              <td>About 20%</td>
+            </tr>
+            <tr>
+              <td>Fiberglass Separator</td>
+              <td>65997-17-3</td>
+              <td>N/A</td>
+              <td>About 5%</td>
+            </tr>
+            <tr>
+              <td>Container (ABS)</td>
+              <td>9003-56-9</td>
+              <td>N/A</td>
+              <td>About5%</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+    </div>
+  </main>
+
+  <script src="./assets/vendor/html2canvas.min.js"></script>
+  <script src="./assets/vendor/jspdf.umd.min.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      const FIELD_DEFAULTS = {
+        value1: "12FM7(24V7AH)",
+        value2: "SHANGHAI XINLEINA BABY CARS ACCESSORIES CO., LTD."
+      };
+
+      const FIELD_ALIASES = {
+        value1: ["value1", "model"],
+        value2: ["value2", "manufacturer"]
+      };
+
+      const paper = document.getElementById("paper");
+      const stage = document.getElementById("paper-stage");
+      const toolbarTitle = document.getElementById("toolbar-title");
+      const downloadButton = document.getElementById("download-button");
+      const printButton = document.getElementById("print-button");
+      const params = new URLSearchParams(window.location.search);
+
+      function getParam(keys) {
+        for (const key of keys) {
+          const value = params.get(key);
+          if (value !== null && value.trim() !== "") {
+            return value.trim();
+          }
+        }
+        return "";
+      }
+
+      function applyFieldValues() {
+        Object.keys(FIELD_DEFAULTS).forEach(function (field) {
+          const value = getParam(FIELD_ALIASES[field]) || FIELD_DEFAULTS[field];
+          document.querySelectorAll('[data-field="' + field + '"]').forEach(function (element) {
+            element.textContent = value;
+          });
+        });
+
+        toolbarTitle.textContent = document.querySelector('[data-field="value1"]').textContent + " Industrial Batteries";
+        document.title = toolbarTitle.textContent;
+      }
+
+      function fitPreview() {
+        const availableWidth = stage.clientWidth;
+        const naturalWidth = paper.offsetWidth;
+        const scale = Math.min(1, availableWidth / naturalWidth);
+        const scaledWidth = naturalWidth * scale;
+        const horizontalOffset = Math.max(0, (availableWidth - scaledWidth) / 2);
+
+        paper.style.transform = "scale(" + scale + ")";
+        paper.style.left = horizontalOffset + "px";
+        stage.style.height = (paper.offsetHeight * scale) + "px";
+      }
+
+      function safeFileName(value) {
+        return value
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_")
+          .replace(/\s+/g, "_")
+          .slice(0, 80) || "24V7";
+      }
+
+      async function waitForAssets(root) {
+        await document.fonts.ready;
+        await Promise.all(
+          Array.from(root.querySelectorAll("img")).map(function (image) {
+            if (image.complete) {
+              return Promise.resolve();
+            }
+            return new Promise(function (resolve) {
+              image.addEventListener("load", resolve, { once: true });
+              image.addEventListener("error", resolve, { once: true });
+            });
+          })
+        );
+      }
+
+      async function downloadPdf() {
+        if (typeof window.html2canvas !== "function" || !window.jspdf) {
+          window.print();
+          return;
+        }
+
+        const originalLabel = downloadButton.textContent;
+        downloadButton.disabled = true;
+        downloadButton.textContent = "Generating...";
+
+        try {
+          paper.style.transform = "none";
+          paper.style.left = "0";
+          await waitForAssets(paper);
+          await new Promise(function (resolve) {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(resolve);
+            });
+          });
+
+          const modelValue = document.querySelector('[data-field="value1"]').textContent;
+
+          const canvas = await window.html2canvas(paper, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            width: paper.offsetWidth,
+            height: paper.offsetHeight,
+            windowWidth: paper.offsetWidth,
+            windowHeight: paper.offsetHeight
+          });
+          const imageData = canvas.toDataURL("image/jpeg", 0.98);
+          const pdf = new window.jspdf.jsPDF({
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait",
+            compress: true
+          });
+
+          pdf.addImage(imageData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+          pdf.save("24V7_" + safeFileName(modelValue) + ".pdf");
+        } finally {
+          fitPreview();
+          downloadButton.disabled = false;
+          downloadButton.textContent = originalLabel;
+        }
+      }
+
+      printButton.addEventListener("click", function () {
+        window.print();
+      });
+
+      downloadButton.addEventListener("click", downloadPdf);
+      window.addEventListener("resize", fitPreview);
+      window.addEventListener("beforeprint", function () {
+        paper.style.transform = "none";
+        paper.style.left = "0";
+      });
+      window.addEventListener("afterprint", fitPreview);
+
+      applyFieldValues();
+      fitPreview();
+    })();
+  </script>
+</body>
+</html>

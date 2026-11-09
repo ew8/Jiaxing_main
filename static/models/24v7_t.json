@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "id": "24v7",
+  "pageTitle": "12FM7 Industrial Batteries",
+  "displayName": "12FM7(24V7AH)",
+  "brand": {
+    "name": "XINLEINA",
+    "logo": "./assets/24v7/xinleina-logo.jpg"
+  },
+  "specifications": [
+    {
+      "label": "Model Name",
+      "value": "Valve Regulated Lead-acid Battery"
+    },
+    {
+      "label": "",
+      "value": "Rechargeable and non-spillable Battery"
+    },
+    {
+      "label": "Battery Type",
+      "value": "Industrial Batteries"
+    },
+    {
+      "label": "Battery Size",
+      "value": "187x102x94mm"
+    },
+    {
+      "label": "Rated Capacity",
+      "value": "7Ah"
+    },
+    {
+      "label": "Rated Voltage",
+      "value": "24V"
+    },
+    {
+      "label": "Weight",
+      "value": "4.07KG (±3%)"
+    },
+    {
+      "label": "Chemistry",
+      "value": "Lead (Pb,PbO₂,PbSO₄)"
+    }
+  ],
+  "contact": {
+    "manufacturer": "SHANGHAI XINLEINA BABY CARS ACCESSORIES CO., LTD.",
+    "address": "Zhenlv Industry Area, Lüxiang Town, Jinshan District, Shanghai City, China, Post Code:201517",
+    "email": "sales@xlnbattery.com",
+    "phone": "+86 021 57375252"
+  },
+  "warning": {
+    "title": "WARNING",
+    "lines": [
+      "To reduce risk of fire or burns, do not open, do not disassemble, do not crush, do not puncture,",
+      "do not dispose in fire or water, do not short external contacts. Fire can be put out with a fire extinguisher."
+    ]
+  },
+  "certifications": [
+    {
+      "key": "ul",
+      "src": "./assets/24v7/ul-mark.jpg",
+      "alt": "UL recognized component MH48334"
+    },
+    {
+      "key": "ce",
+      "src": "./assets/24v7/ce-mark.jpg",
+      "alt": "CE"
+    },
+    {
+      "key": "recycle",
+      "src": "./assets/24v7/pb-recycle.jpg",
+      "alt": "Lead recycling symbol"
+    },
+    {
+      "key": "extinguisher",
+      "src": "./assets/24v7/fire-extinguisher.jpg",
+      "alt": "Dry powder fire extinguisher"
+    },
+    {
+      "key": "disposal",
+      "src": "./assets/24v7/pb-disposal.jpg",
+      "alt": "Do not dispose of battery in household waste"
+    }
+  ],
+  "materials": {
+    "heading": "Raw materials and components table",
+    "columns": [
+      "Components",
+      "CAS NO",
+      "TLV",
+      "%Wt"
+    ],
+    "rows": [
+      {
+        "components": "Lead(Pb,PbO₂,PbSO₄)",
+        "cas": "7439-92-1",
+        "tlv": "0.05mg/m³",
+        "weight": "About 70%"
+      },
+      {
+        "components": "Sulfuric Acid",
+        "cas": "7664-93-9",
+        "tlv": "1mg/m³",
+        "weight": "About 20%"
+      },
+      {
+        "components": "Fiberglass Separator",
+        "cas": "65997-17-3",
+        "tlv": "N/A",
+        "weight": "About 5%"
+      },
+      {
+        "components": "Container (ABS)",
+        "cas": "9003-56-9",
+        "tlv": "N/A",
+        "weight": "About5%"
+      }
+    ]
+  }
+}

@@ -1,260 +1,967 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDF 文档</title>
-    <style>
-        /* ========== 基础重置与背景 ========== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            color: #1f2937;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Document Generator</title>
+  <style>
+    :root {
+      --paper-width: 595.3pt;
+      --paper-height: 841.9pt;
+      --ink: #000;
+      --canvas: #edf1f4;
+    }
 
-        /* ========== 主卡片容器 ========== */
-        .card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 24px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-            width: 100%;
-            max-width: 380px;
-            padding: 40px 30px 30px;
-            text-align: center;
-            animation: fadeInUp 0.6s ease-out;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
 
-        /* ========== 顶部图标与标题 ========== */
-        .icon-wrapper {
-            width: 72px;
-            height: 72px;
-            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto 24px;
-            box-shadow: 0 8px 16px rgba(255, 117, 140, 0.3);
-        }
+    body {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent 220px),
+        var(--canvas);
+      color: var(--ink);
+      font-family: Calibri, "Segoe UI", Arial, sans-serif;
+    }
 
-        .icon-wrapper svg {
-            width: 36px;
-            height: 36px;
-            fill: white;
-        }
+    button {
+      font: inherit;
+    }
 
-        h1 {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #111827;
-        }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      padding: 14px 18px;
+      background: rgba(237, 241, 244, 0.92);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(14px);
+    }
 
-        .subtitle {
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 32px;
-        }
+    .toolbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      width: min(100%, 1040px);
+    }
 
-        /* ========== 按钮组 ========== */
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            margin-bottom: 28px;
-        }
+    .toolbar-heading {
+      min-width: 0;
+    }
 
-        .btn {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            padding: 14px 0;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            outline: none;
-        }
+    .toolbar-title {
+      overflow: hidden;
+      color: #26313c;
+      font-size: 14px;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-        .btn:active {
-            transform: scale(0.98);
-        }
+    .toolbar-status {
+      min-height: 16px;
+      margin-top: 2px;
+      overflow: hidden;
+      color: #64748b;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-        .btn svg {
-            width: 20px;
-            height: 20px;
-        }
+    .toolbar-status.is-error {
+      color: #b42318;
+    }
 
-        /* 预览按钮 (主按钮) */
-        .btn-preview {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-        }
-        .btn-preview:hover {
-            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
-            transform: translateY(-1px);
-        }
-        .btn-preview svg { fill: white; }
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
 
-        /* 下载按钮 (次按钮) */
-        .btn-download {
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #e5e7eb;
-        }
-        .btn-download:hover {
-            background: #e5e7eb;
-        }
-        .btn-download svg { fill: #4b5563; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+    }
 
-        /* ========== 底部倒计时区域 ========== */
-        .countdown-area {
-            border-top: 1px solid #f3f4f6;
-            padding-top: 20px;
-        }
+    .button:active {
+      transform: translateY(1px);
+    }
 
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #e5e7eb;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-bottom: 12px;
-        }
+    .button-secondary {
+      background: #fff;
+      color: #26313c;
+      border-color: #cfd8e0;
+    }
 
-        .progress {
-            height: 100%;
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            width: 100%;
-            /* 核心动画：5秒内从 100% 缩减到 0% */
-            animation: progress-shrink 5s linear forwards;
-        }
+    .button-secondary:hover {
+      border-color: #98a8b7;
+    }
 
-        @keyframes progress-shrink {
-            from { width: 100%; }
-            to { width: 0%; }
-        }
+    .button-primary {
+      background: #176b55;
+      color: #fff;
+    }
 
-        .countdown-text {
-            font-size: 13px;
-            color: #9ca3af;
-        }
+    .button-primary:hover {
+      background: #125844;
+    }
 
-        .countdown-text span {
-            color: #4f46e5;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums; /* 防止数字跳动 */
-        }
-    </style>
+    .button:disabled {
+      cursor: wait;
+      opacity: 0.55;
+    }
+
+    .preview {
+      padding: 30px 16px 56px;
+    }
+
+    .paper-stage {
+      position: relative;
+      width: min(100%, 990px);
+      margin: 0 auto;
+    }
+
+    .paper {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: var(--paper-width);
+      height: var(--paper-height);
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 18px 55px rgba(16, 30, 42, 0.16);
+      transform-origin: top left;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .paper[aria-busy="true"] {
+      opacity: 0.55;
+    }
+
+    .page-title,
+    .issued-at,
+    .model-title,
+    .specs,
+    .warning-title,
+    .warning-copy,
+    .table-heading,
+    .materials-table {
+      position: absolute;
+      margin: 0;
+      color: var(--ink);
+    }
+
+    .page-title {
+      top: 41.85pt;
+      left: 76.56pt;
+      max-width: 385pt;
+      font-size: 14.05pt;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .issued-at {
+      top: 41.85pt;
+      right: 23.5pt;
+      max-width: 150pt;
+      font-size: 9.3pt;
+      line-height: 1;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .issued-at strong {
+      font-weight: 700;
+    }
+
+    .model-title {
+      top: 117.07pt;
+      left: 76.56pt;
+      max-width: 430pt;
+      font-size: 18pt;
+      font-weight: 700;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .brand-logo {
+      position: absolute;
+      z-index: 2;
+      top: 159.14pt;
+      left: 285.56pt;
+      width: 250.87pt;
+      height: 110.73pt;
+      object-fit: fill;
+    }
+
+    .specs {
+      top: 149.77pt;
+      left: 76.56pt;
+      width: 468pt;
+      max-height: 257pt;
+      overflow: hidden;
+      font-size: 10.45pt;
+      line-height: 13.98pt;
+    }
+
+    .specs p {
+      margin: 0 0 9.42pt;
+      line-height: 13.98pt;
+    }
+
+    .specs p:last-child {
+      margin-bottom: 0;
+    }
+
+    .email-phone {
+      display: flex;
+      gap: 42pt;
+      white-space: nowrap;
+    }
+
+    .warning-icon {
+      position: absolute;
+      top: 407.04pt;
+      left: 69.6pt;
+      width: 15.96pt;
+      height: 13.32pt;
+      object-fit: fill;
+    }
+
+    .warning-title {
+      top: 407.03pt;
+      left: 87pt;
+      font-size: 10.45pt;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .warning-title::after {
+      content: ":";
+    }
+
+    .warning-copy {
+      top: 430.57pt;
+      left: 76.56pt;
+      width: 470pt;
+      font-size: 10.45pt;
+      line-height: 23.4pt;
+    }
+
+    .warning-copy span {
+      display: block;
+    }
+
+    .certification {
+      position: absolute;
+      display: none;
+      object-fit: fill;
+    }
+
+    .certification[data-cert-key="ul"] {
+      top: 572.47pt;
+      left: 85.56pt;
+      width: 78.23pt;
+      height: 54.91pt;
+    }
+
+    .certification[data-cert-key="ce"] {
+      top: 572.47pt;
+      left: 171.52pt;
+      width: 108.47pt;
+      height: 60.01pt;
+    }
+
+    .certification[data-cert-key="recycle"] {
+      top: 479.81pt;
+      left: 81.88pt;
+      width: 75.55pt;
+      height: 82.61pt;
+    }
+
+    .certification[data-cert-key="extinguisher"] {
+      top: 477.58pt;
+      left: 172.8pt;
+      width: 89.01pt;
+      height: 87.07pt;
+    }
+
+    .certification[data-cert-key="disposal"] {
+      top: 499.43pt;
+      left: 426.01pt;
+      width: 85.53pt;
+      height: 125.99pt;
+    }
+
+    .certification.is-visible {
+      display: block;
+    }
+
+    .table-heading {
+      top: 633.23pt;
+      left: 76.56pt;
+      font-size: 10.45pt;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .materials-table {
+      top: 652.2pt;
+      left: 75.95pt;
+      width: 451.2pt;
+      height: 82.24pt;
+      table-layout: fixed;
+      border-collapse: collapse;
+      font-size: 10.45pt;
+      line-height: 1;
+    }
+
+    .materials-table col:nth-child(1) {
+      width: 149.8pt;
+    }
+
+    .materials-table col:nth-child(2) {
+      width: 102.2pt;
+    }
+
+    .materials-table col:nth-child(3) {
+      width: 102.2pt;
+    }
+
+    .materials-table col:nth-child(4) {
+      width: 97pt;
+    }
+
+    .materials-table th,
+    .materials-table td {
+      height: 16.1pt;
+      padding: 0 3pt;
+      border: 0.48pt solid #000;
+      font-weight: 400;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .state-panel {
+      width: min(100%, 560px);
+      margin: 50px auto 0;
+      padding: 28px;
+      border: 1px solid #d7dee5;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 12px 35px rgba(16, 30, 42, 0.08);
+    }
+
+    .state-panel h1 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .state-panel p {
+      margin: 0;
+      color: #5b6773;
+      line-height: 1.6;
+    }
+
+    .state-panel[hidden] {
+      display: none;
+    }
+
+    @media (max-width: 720px) {
+      .toolbar {
+        padding: 10px 12px;
+      }
+
+      .toolbar-inner {
+        gap: 10px;
+      }
+
+      .toolbar-title {
+        font-size: 13px;
+      }
+
+      .toolbar-status {
+        font-size: 11px;
+      }
+
+      .button {
+        min-height: 38px;
+        padding: 0 12px;
+        font-size: 13px;
+      }
+
+      .preview {
+        padding: 18px 10px 34px;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      .toolbar,
+      .state-panel {
+        display: none !important;
+      }
+
+      .preview {
+        padding: 0;
+      }
+
+      .paper-stage {
+        width: auto;
+        height: auto !important;
+      }
+
+      .paper {
+        position: static;
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        box-shadow: none;
+        opacity: 1;
+        transform: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
+  <header class="toolbar">
+    <div class="toolbar-inner">
+      <div class="toolbar-heading">
+        <div class="toolbar-title" id="toolbar-title">Model Document Generator</div>
+        <div class="toolbar-status" id="toolbar-status" role="status">Loading configuration...</div>
+      </div>
+      <div class="toolbar-actions">
+        <button class="button button-secondary" id="print-button" type="button" disabled>Print</button>
+        <button class="button button-primary" id="download-button" type="button" disabled>Download PDF</button>
+      </div>
+    </div>
+  </header>
 
-    <div class="card">
-        <!-- 顶部图标 -->
-        <div class="icon-wrapper">
-            <!-- PDF 文件图标 -->
-            <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M9,13V19H7V13H9M15,15.5V17H13V15.5H15M13,11V12.5H15V11H13M17,13V19H15V13H17Z" /></svg>
-        </div>
+  <main class="preview">
+    <div class="paper-stage" id="paper-stage">
+      <article class="paper" id="paper" aria-busy="true">
+        <h1 class="page-title" id="page-title"></h1>
+        <p class="issued-at"><strong>Date:</strong> <time id="issued-at"></time></p>
 
-        <!-- 标题与说明 -->
-        <h1>PDF 技术文档已就绪</h1>
-        <p class="subtitle">请选择在线预览或下载到本地</p>
+        <p class="model-title">Model: <span id="model-name"></span></p>
+        <img class="brand-logo" id="brand-logo" alt="">
 
-        <!-- 按钮组 -->
-        <div class="btn-group">
-            <!-- 预览按钮 -->
-            <button class="btn btn-preview" id="btnPreview">
-                <svg viewBox="0 0 24 24"><path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" /></svg>
-                在线预览
-            </button>
-            
-            <!-- 下载按钮 -->
-            <button class="btn btn-download" id="btnDownload">
-                <svg viewBox="0 0 24 24"><path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" /></svg>
-                下载文件
-            </button>
-        </div>
+        <section class="specs" id="specifications" aria-label="Product specifications"></section>
 
-        <!-- 倒计时提示 -->
-        <div class="countdown-area">
-            <div class="progress-bar">
-                <div class="progress" id="progress"></div>
-            </div>
-            <p class="countdown-text"><span id="timer">5</span> 秒后自动进入预览</p>
-        </div>
+        <img class="warning-icon" src="./assets/24v7/warning-triangle.jpg" alt="">
+        <p class="warning-title" id="warning-title"></p>
+        <p class="warning-copy" id="warning-copy"></p>
+
+        <img class="certification" data-cert-key="ul" alt="">
+        <img class="certification" data-cert-key="ce" alt="">
+        <img class="certification" data-cert-key="recycle" alt="">
+        <img class="certification" data-cert-key="extinguisher" alt="">
+        <img class="certification" data-cert-key="disposal" alt="">
+
+        <h2 class="table-heading" id="materials-heading"></h2>
+        <table class="materials-table">
+          <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+          </colgroup>
+          <thead>
+            <tr id="materials-header"></tr>
+          </thead>
+          <tbody id="materials-body"></tbody>
+        </table>
+      </article>
     </div>
 
-    <script>
-        // ==========================================
-        // ⚠️ 在这里填入你的真实 URL
-        // ==========================================
-        const DOWNLOAD_URL = './24v7_2026_v1_0.pdf'; // 例如: 'https://xxx.com/file.pdf'
-        const PREVIEW_URL  = './perview_v2.html'; // 例如: 'https://xxx.com/preview.html'
-        // ==========================================
+    <section class="state-panel" id="state-panel" hidden>
+      <h1 id="state-title">Unable to load model</h1>
+      <p id="state-message"></p>
+    </section>
+  </main>
 
-        const btnDownload = document.getElementById('btnDownload');
-        const btnPreview  = document.getElementById('btnPreview');
-        const timerEl     = document.getElementById('timer');
-        const progressEl  = document.getElementById('progress');
+  <script src="./assets/vendor/html2canvas.min.js"></script>
+  <script src="./assets/vendor/jspdf.umd.min.js"></script>
+  <script>
+    (function () {
+      "use strict";
 
-        let timeLeft = 8;
-        let intervalId;
+      const MANIFEST_URL = "./models/manifest.json";
+      const SHANGHAI_TIME_ZONE = "Asia/Shanghai";
+      const MAX_MATERIAL_ROWS = 4;
 
-        // 启动倒计时
-        function startCountdown() {
-            intervalId = setInterval(() => {
-                timeLeft--;
-                timerEl.textContent = timeLeft;
+      const paper = document.getElementById("paper");
+      const stage = document.getElementById("paper-stage");
+      const toolbarTitle = document.getElementById("toolbar-title");
+      const toolbarStatus = document.getElementById("toolbar-status");
+      const downloadButton = document.getElementById("download-button");
+      const printButton = document.getElementById("print-button");
+      const statePanel = document.getElementById("state-panel");
+      const stateTitle = document.getElementById("state-title");
+      const stateMessage = document.getElementById("state-message");
+      const specs = document.getElementById("specifications");
 
-                if (timeLeft <= 0) {
-                    clearInterval(intervalId);
-                    // 时间到，自动跳转预览
-                    if (PREVIEW_URL) {
-                        window.location.href = PREVIEW_URL;
-                    } else {
-                        console.warn('自动跳转失败：PREVIEW_URL 未配置');
-                    }
-                }
-            }, 1000);
+      let manifest = null;
+      let modelConfig = null;
+      let issuedAtInfo = null;
+      let renderReady = false;
+
+      function normalizeLookupKey(value) {
+        return String(value || "").trim().toLocaleLowerCase("en-US");
+      }
+
+      function setStatus(message, isError) {
+        toolbarStatus.textContent = message;
+        toolbarStatus.classList.toggle("is-error", Boolean(isError));
+      }
+
+      function showError(title, message) {
+        renderReady = false;
+        paper.hidden = true;
+        statePanel.hidden = false;
+        stateTitle.textContent = title;
+        stateMessage.textContent = message;
+        toolbarTitle.textContent = title;
+        setStatus(message, true);
+        downloadButton.disabled = true;
+        printButton.disabled = true;
+        fitPreview();
+      }
+
+      function setText(element, value) {
+        element.textContent = value == null ? "" : String(value);
+      }
+
+      function buildModelLookup(catalog) {
+        const lookup = new Map();
+        Object.entries(catalog.models || {}).forEach(function (entry) {
+          const [key, value] = entry;
+          const keys = [key, value.id].concat(value.aliases || []);
+          keys.forEach(function (alias) {
+            lookup.set(normalizeLookupKey(alias), value);
+          });
+        });
+        return lookup;
+      }
+
+      function formatIssuedAt(rawValue) {
+        if (!rawValue) {
+          const today = new Intl.DateTimeFormat("en-CA", {
+            timeZone: SHANGHAI_TIME_ZONE,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+          }).format(new Date());
+          return { display: today, filename: today };
         }
 
-        // 清除倒计时并跳转
-        function navigateTo(url, type) {
-            clearInterval(intervalId); // 停止倒计时
-            if (url) {
-                window.location.href = url;
-            } else {
-                alert(`${type}地址未配置，请在代码中填入 URL`);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+          const parsedDate = new Date(rawValue + "T00:00:00+08:00");
+          if (Number.isNaN(parsedDate.getTime())) {
+            throw new Error("The time parameter is not a valid date.");
+          }
+          return { display: rawValue, filename: rawValue };
+        }
+
+        const parsedDate = new Date(rawValue);
+        if (Number.isNaN(parsedDate.getTime())) {
+          throw new Error("Use YYYY-MM-DD or an ISO 8601 time such as 2026-11-07T12:30:00+08:00.");
+        }
+
+        const display = new Intl.DateTimeFormat("en-GB", {
+          timeZone: SHANGHAI_TIME_ZONE,
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZoneName: "short"
+        }).format(parsedDate);
+
+        const filename = new Intl.DateTimeFormat("en-CA", {
+          timeZone: SHANGHAI_TIME_ZONE,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        }).format(parsedDate).replace(/[^\d]/g, "");
+
+        return { display: display, filename: filename };
+      }
+
+      function validateConfig(config) {
+        if (!config || config.schemaVersion !== 1) {
+          throw new Error("The model configuration has an unsupported schema version.");
+        }
+        if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(config.id || "")) {
+          throw new Error("The model ID must use lowercase letters, numbers, and hyphens.");
+        }
+        if (!Array.isArray(config.specifications) || config.specifications.length === 0) {
+          throw new Error("The model configuration does not contain specifications.");
+        }
+        if (!config.contact || !config.warning || !config.brand) {
+          throw new Error("The model configuration is missing required sections.");
+        }
+        if (!config.materials || !Array.isArray(config.materials.rows)) {
+          throw new Error("The model configuration does not contain material rows.");
+        }
+        if (config.materials.rows.length > MAX_MATERIAL_ROWS) {
+          throw new Error("This A4 template supports at most " + MAX_MATERIAL_ROWS + " material rows.");
+        }
+        if (!Array.isArray(config.materials.columns) || config.materials.columns.length !== 4) {
+          throw new Error("The material table must define exactly four columns.");
+        }
+        if (typeof config.brand.logo !== "string" || !config.brand.logo.startsWith("./assets/")) {
+          throw new Error("The brand logo must use a local ./assets/ path.");
+        }
+        (config.certifications || []).forEach(function (item) {
+          if (typeof item.src !== "string" || !item.src.startsWith("./assets/")) {
+            throw new Error("Certification images must use local ./assets/ paths.");
+          }
+        });
+      }
+
+      function appendSpecification(label, value) {
+        const row = document.createElement("p");
+        if (label) {
+          const labelElement = document.createElement("span");
+          labelElement.textContent = label + ": ";
+          row.appendChild(labelElement);
+        }
+        row.appendChild(document.createTextNode(value == null ? "" : String(value)));
+        specs.appendChild(row);
+      }
+
+      function renderSpecifications(config) {
+        specs.replaceChildren();
+
+        config.specifications.forEach(function (item) {
+          appendSpecification(item.label, item.value);
+        });
+
+        const contact = config.contact;
+        appendSpecification("Manufacturer", contact.manufacturer);
+        appendSpecification("Address", contact.address);
+
+        const contactRow = document.createElement("p");
+        contactRow.className = "email-phone";
+        const email = document.createElement("span");
+        const phone = document.createElement("span");
+        email.textContent = "Email: " + contact.email;
+        phone.textContent = "Phone: " + contact.phone;
+        contactRow.append(email, phone);
+        specs.appendChild(contactRow);
+      }
+
+      function renderWarning(warning) {
+        setText(document.getElementById("warning-title"), warning.title);
+        const warningCopy = document.getElementById("warning-copy");
+        warningCopy.replaceChildren();
+
+        (warning.lines || []).forEach(function (line) {
+          const row = document.createElement("span");
+          row.textContent = line;
+          warningCopy.appendChild(row);
+        });
+      }
+
+      function renderCertifications(items) {
+        const allowedKeys = new Set(["ul", "ce", "recycle", "extinguisher", "disposal"]);
+        const images = new Map(
+          Array.from(document.querySelectorAll("[data-cert-key]")).map(function (image) {
+            return [image.dataset.certKey, image];
+          })
+        );
+
+        images.forEach(function (image) {
+          image.classList.remove("is-visible");
+          image.removeAttribute("src");
+          image.alt = "";
+        });
+
+        (items || []).forEach(function (item) {
+          if (!allowedKeys.has(item.key)) {
+            return;
+          }
+          const image = images.get(item.key);
+          image.src = item.src;
+          image.alt = item.alt || "";
+          image.classList.add("is-visible");
+        });
+      }
+
+      function renderMaterials(materials) {
+        setText(document.getElementById("materials-heading"), materials.heading);
+
+        const header = document.getElementById("materials-header");
+        header.replaceChildren();
+        materials.columns.forEach(function (column) {
+          const cell = document.createElement("th");
+          cell.textContent = column;
+          header.appendChild(cell);
+        });
+
+        const body = document.getElementById("materials-body");
+        body.replaceChildren();
+        materials.rows.forEach(function (row) {
+          const tr = document.createElement("tr");
+          [row.components, row.cas, row.tlv, row.weight].forEach(function (value) {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            tr.appendChild(cell);
+          });
+          body.appendChild(tr);
+        });
+      }
+
+      function fitSpecifications() {
+        specs.style.fontSize = "10.45pt";
+        specs.style.lineHeight = "13.98pt";
+
+        Array.from(specs.children).forEach(function (row) {
+          row.style.marginBottom = "9.42pt";
+        });
+
+        if (specs.lastElementChild) {
+          specs.lastElementChild.style.marginBottom = "0";
+        }
+
+        let fontSize = 10.45;
+        let lineHeight = 13.98;
+        let gap = 9.42;
+        let attempts = 0;
+
+        while (specs.scrollHeight > specs.clientHeight + 1 && attempts < 18) {
+          fontSize = Math.max(7.8, fontSize - 0.15);
+          lineHeight = Math.max(10.4, lineHeight - 0.18);
+          gap = gap > 5.5 ? gap - 0.24 : gap;
+          specs.style.fontSize = fontSize + "pt";
+          specs.style.lineHeight = lineHeight + "pt";
+          Array.from(specs.children).forEach(function (row) {
+            row.style.lineHeight = lineHeight + "pt";
+            row.style.marginBottom = gap + "pt";
+          });
+          if (specs.lastElementChild) {
+            specs.lastElementChild.style.marginBottom = "0";
+          }
+          attempts += 1;
+        }
+      }
+
+      function renderConfig(config) {
+        validateConfig(config);
+
+        setText(document.getElementById("page-title"), config.pageTitle);
+        setText(document.getElementById("model-name"), config.displayName);
+        setText(document.getElementById("issued-at"), issuedAtInfo.display);
+        document.getElementById("issued-at").dateTime = issuedAtInfo.iso || issuedAtInfo.display;
+
+        const logo = document.getElementById("brand-logo");
+        logo.src = config.brand.logo;
+        logo.alt = config.brand.name || "";
+
+        renderSpecifications(config);
+        renderWarning(config.warning);
+        renderCertifications(config.certifications);
+        renderMaterials(config.materials);
+        fitSpecifications();
+
+        toolbarTitle.textContent = config.pageTitle;
+        document.title = config.pageTitle;
+        paper.setAttribute("aria-busy", "false");
+      }
+
+      async function waitForAssets() {
+        await document.fonts.ready;
+        const images = Array.from(paper.querySelectorAll("img"));
+        await Promise.all(
+          images.map(function (image) {
+            if (image.complete && image.naturalWidth > 0) {
+              return Promise.resolve();
             }
+            return new Promise(function (resolve) {
+              image.addEventListener("load", resolve, { once: true });
+              image.addEventListener("error", resolve, { once: true });
+            });
+          })
+        );
+      }
+
+      function fitPreview() {
+        const availableWidth = stage.clientWidth;
+        const naturalWidth = paper.offsetWidth;
+        if (!naturalWidth || paper.hidden) {
+          stage.style.height = statePanel.hidden ? "0px" : "auto";
+          return;
         }
 
-        // 绑定点击事件
-        btnDownload.addEventListener('click', () => navigateTo(DOWNLOAD_URL, '下载'));
-        btnPreview.addEventListener('click', () => navigateTo(PREVIEW_URL, '预览'));
+        const scale = Math.min(1, availableWidth / naturalWidth);
+        const scaledWidth = naturalWidth * scale;
+        const horizontalOffset = Math.max(0, (availableWidth - scaledWidth) / 2);
 
-        // 页面加载完成后开始倒计时
-        startCountdown();
-    </script>
+        paper.style.transform = "scale(" + scale + ")";
+        paper.style.left = horizontalOffset + "px";
+        stage.style.height = (paper.offsetHeight * scale) + "px";
+      }
 
+      function safeFileName(value) {
+        return String(value || "")
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_")
+          .replace(/\s+/g, "_")
+          .slice(0, 80);
+      }
+
+      async function downloadPdf() {
+        if (!renderReady || typeof window.html2canvas !== "function" || !window.jspdf) {
+          return;
+        }
+
+        const originalLabel = downloadButton.textContent;
+        downloadButton.disabled = true;
+        printButton.disabled = true;
+        downloadButton.textContent = "Generating...";
+        setStatus("Generating PDF...", false);
+
+        try {
+          paper.style.transform = "none";
+          paper.style.left = "0";
+          await waitForAssets();
+          await new Promise(function (resolve) {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(resolve);
+            });
+          });
+
+          const canvas = await window.html2canvas(paper, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            width: paper.offsetWidth,
+            height: paper.offsetHeight,
+            windowWidth: paper.offsetWidth,
+            windowHeight: paper.offsetHeight
+          });
+          const imageData = canvas.toDataURL("image/jpeg", 0.98);
+          const pdf = new window.jspdf.jsPDF({
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait",
+            compress: true
+          });
+
+          pdf.addImage(imageData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+          pdf.save(
+            safeFileName(modelConfig.id) +
+              "_" +
+              safeFileName(modelConfig.displayName) +
+              "_" +
+              safeFileName(issuedAtInfo.filename) +
+              ".pdf"
+          );
+          setStatus("PDF generated.", false);
+        } catch (error) {
+          console.error(error);
+          setStatus("PDF generation failed. Use Print instead.", true);
+        } finally {
+          fitPreview();
+          downloadButton.disabled = !renderReady;
+          printButton.disabled = !renderReady;
+          downloadButton.textContent = originalLabel;
+        }
+      }
+
+      async function initialize() {
+        downloadButton.disabled = true;
+        printButton.disabled = true;
+        setStatus("Loading configuration...", false);
+
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const response = await fetch(MANIFEST_URL, { cache: "no-cache" });
+          if (!response.ok) {
+            throw new Error("Unable to load the model manifest.");
+          }
+
+          manifest = await response.json();
+          const lookup = buildModelLookup(manifest);
+          const requestedModel = params.get("model") || manifest.default;
+          const entry = lookup.get(normalizeLookupKey(requestedModel));
+
+          if (!entry) {
+            showError("Unknown model", 'The model "' + requestedModel + '" is not registered in models/manifest.json.');
+            return;
+          }
+
+          issuedAtInfo = formatIssuedAt(params.get("time") || "");
+          issuedAtInfo.iso = params.get("time") || issuedAtInfo.display;
+
+          const configResponse = await fetch(entry.file, { cache: "no-cache" });
+          if (!configResponse.ok) {
+            throw new Error('Unable to load configuration file "' + entry.file + '".');
+          }
+
+          modelConfig = await configResponse.json();
+          renderConfig(modelConfig);
+          await waitForAssets();
+          fitSpecifications();
+          fitPreview();
+          renderReady = true;
+          downloadButton.disabled = false;
+          printButton.disabled = false;
+          setStatus("Ready.", false);
+        } catch (error) {
+          console.error(error);
+          showError("Unable to load model", error.message || "Unexpected configuration error.");
+        }
+      }
+
+      printButton.addEventListener("click", function () {
+        window.print();
+      });
+      downloadButton.addEventListener("click", downloadPdf);
+      window.addEventListener("resize", fitPreview);
+      window.addEventListener("beforeprint", function () {
+        paper.style.transform = "none";
+        paper.style.left = "0";
+      });
+      window.addEventListener("afterprint", fitPreview);
+
+      initialize();
+    })();
+  </script>
 </body>
 </html>
