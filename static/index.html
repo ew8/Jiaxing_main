@@ -265,13 +265,14 @@
     .warning-copy {
       top: 430.57pt;
       left: 76.56pt;
-      width: 470pt;
+      width: 496pt;
       font-size: 10.45pt;
       line-height: 23.4pt;
     }
 
     .warning-copy span {
       display: block;
+      white-space: nowrap;
     }
 
     .certification {
@@ -771,6 +772,23 @@
         });
       }
 
+      function fitWarningText() {
+        const warningCopy = document.getElementById("warning-copy");
+        const lines = Array.from(warningCopy.querySelectorAll("span"));
+        let fontSize = 10.45;
+        warningCopy.style.fontSize = fontSize + "pt";
+
+        while (
+          lines.some(function (line) {
+            return line.scrollWidth > warningCopy.clientWidth;
+          }) &&
+          fontSize > 8.4
+        ) {
+          fontSize -= 0.1;
+          warningCopy.style.fontSize = fontSize + "pt";
+        }
+      }
+
       function renderCertifications(items) {
         const allowedKeys = new Set(["ul", "ce", "recycle", "extinguisher", "disposal"]);
         const images = new Map(
@@ -912,6 +930,7 @@
         renderCertifications(config.certifications);
         renderMaterials(config.materials);
         fitSpecifications();
+        fitWarningText();
 
         toolbarTitle.textContent = config.pageTitle;
         document.title = config.pageTitle;
@@ -1054,6 +1073,7 @@
           renderConfig(modelConfig);
           await waitForAssets();
           fitSpecifications();
+          fitWarningText();
           fitPreview();
           renderReady = true;
           downloadButton.disabled = false;
