@@ -159,7 +159,7 @@
     }
 
     .page-title,
-    .issued-at,
+    .batch-info,
     .model-title,
     .specs,
     .warning-title,
@@ -181,7 +181,7 @@
       line-height: 1;
     }
 
-    .issued-at {
+    .batch-info {
       top: 41.85pt;
       right: 23.5pt;
       max-width: 150pt;
@@ -191,7 +191,7 @@
       white-space: nowrap;
     }
 
-    .issued-at strong {
+    .batch-info strong {
       font-weight: 700;
     }
 
@@ -500,7 +500,7 @@
     <div class="paper-stage" id="paper-stage">
       <article class="paper" id="paper" aria-busy="true">
         <h1 class="page-title" id="page-title"></h1>
-        <p class="issued-at"><strong>Date:</strong> <time id="issued-at"></time></p>
+        <p class="batch-info"><strong>Batch:</strong> <span id="batch-value"></span></p>
 
         <p class="model-title">Model: <span id="model-name"></span></p>
         <img class="brand-logo" id="brand-logo" alt="">
@@ -548,7 +548,7 @@
       "use strict";
 
       const MANIFEST_URL = "./models/manifest.json";
-      const SHANGHAI_TIME_ZONE = "Asia/Shanghai";
+      const BATCH_REGISTRY_URL = "./models/batches.json";
       const MAX_LEGACY_MATERIAL_ROWS = 4;
       const MAX_CLASSIFICATION_MATERIALS = 6;
       const MAX_CLASSIFICATION_LINES = 14;
@@ -566,7 +566,7 @@
 
       let manifest = null;
       let modelConfig = null;
-      let issuedAtInfo = null;
+      let batchValue = null;
       let renderReady = false;
 
       function normalizeLookupKey(value) {
@@ -597,6 +597,10 @@
         fitPreview();
       }
 
+      function showNotFound() {
+        showError("Page not found", "Please check the URL.");
+      }
+
       function setText(element, value) {
         element.textContent = value == null ? "" : String(value);
       }
@@ -611,54 +615,6 @@
           });
         });
         return lookup;
-      }
-
-      function formatIssuedAt(rawValue) {
-        if (!rawValue) {
-          const today = new Intl.DateTimeFormat("en-CA", {
-            timeZone: SHANGHAI_TIME_ZONE,
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit"
-          }).format(new Date());
-          return { display: today, filename: today };
-        }
-
-        if (/^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
-          const parsedDate = new Date(rawValue + "T00:00:00+08:00");
-          if (Number.isNaN(parsedDate.getTime())) {
-            throw new Error("The time parameter is not a valid date.");
-          }
-          return { display: rawValue, filename: rawValue };
-        }
-
-        const parsedDate = new Date(rawValue);
-        if (Number.isNaN(parsedDate.getTime())) {
-          throw new Error("Use YYYY-MM-DD or an ISO 8601 time such as 2026-11-07T12:30:00+08:00.");
-        }
-
-        const display = new Intl.DateTimeFormat("en-GB", {
-          timeZone: SHANGHAI_TIME_ZONE,
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-          timeZoneName: "short"
-        }).format(parsedDate);
-
-        const filename = new Intl.DateTimeFormat("en-CA", {
-          timeZone: SHANGHAI_TIME_ZONE,
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false
-        }).format(parsedDate).replace(/[^\d]/g, "");
-
-        return { display: display, filename: filename };
       }
 
       function validateConfig(config) {
@@ -900,8 +856,7 @@
 
         setText(document.getElementById("page-title"), config.pageTitle);
         setText(document.getElementById("model-name"), config.displayName);
-        setText(document.getElementById("issued-at"), issuedAtInfo.display);
-        document.getElementById("issued-at").dateTime = issuedAtInfo.iso || issuedAtInfo.display;
+        setText(document.getElementById("batch-value"), batchValue);
 
         const logo = document.getElementById("brand-logo");
         logo.src = config.brand.logo;
@@ -1006,7 +961,7 @@
               "_" +
               safeFileName(modelConfig.displayName) +
               "_" +
-              safeFileName(issuedAtInfo.filename) +
+              safeFileName(batchValue) +
               ".pdf"
           );
           setStatus("PDF generated.", false);
@@ -1028,23 +983,33 @@
 
         try {
           const params = new URLSearchParams(window.location.search);
-          const response = await fetch(MANIFEST_URL, { cache: "no-cache" });
-          if (!response.ok) {
-            throw new Error("Unable to load the model manifest.");
+          const [manifestResponse, batchesResponse] = await Promise.all([
+            fetch(MANIFEST_URL, { cache: "no-cache" }),
+            fetch(BATCH_REGISTRY_URL, { cache: "no-cache" })
+          ]);
+          if (!manifestResponse.ok || !batchesResponse.ok) {
+            throw new Error("Unable to load model or batch configuration.");
           }
 
-          manifest = await response.json();
+          manifest = await manifestResponse.json();
+          const batchRegistry = await batchesResponse.json();
           const lookup = buildModelLookup(manifest);
           const requestedModel = params.get("model") || manifest.default;
           const entry = lookup.get(normalizeLookupKey(requestedModel));
+          const requestedBatch = (params.get("batch") || params.get("time") || "").trim();
 
-          if (!entry) {
-            showError("Unknown model", 'The model "' + requestedModel + '" is not registered in models/manifest.json.');
+          if (!entry || !requestedBatch) {
+            showNotFound();
             return;
           }
 
-          issuedAtInfo = formatIssuedAt(params.get("time") || "");
-          issuedAtInfo.iso = params.get("time") || issuedAtInfo.display;
+          const allowedBatches = batchRegistry.models && batchRegistry.models[entry.id];
+          if (!Array.isArray(allowedBatches) || !allowedBatches.includes(requestedBatch)) {
+            showNotFound();
+            return;
+          }
+
+          batchValue = requestedBatch;
 
           const configResponse = await fetch(entry.file, { cache: "no-cache" });
           if (!configResponse.ok) {
