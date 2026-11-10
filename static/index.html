@@ -275,46 +275,26 @@
       white-space: nowrap;
     }
 
-    .certification {
+    .certifications {
       position: absolute;
-      display: none;
       z-index: 0;
-      object-fit: fill;
+      top: 485pt;
+      left: 76.56pt;
+      width: 451pt;
+      height: 74pt;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8pt;
     }
 
-    .certification[data-cert-key="ul"] {
-      top: 572.47pt;
-      left: 85.56pt;
-      width: 78.23pt;
-      height: 54.91pt;
-    }
-
-    .certification[data-cert-key="ce"] {
-      top: 572.47pt;
-      left: 171.52pt;
-      width: 108.47pt;
-      height: 60.01pt;
-    }
-
-    .certification[data-cert-key="recycle"] {
-      top: 479.81pt;
-      left: 81.88pt;
-      width: 75.55pt;
-      height: 82.61pt;
-    }
-
-    .certification[data-cert-key="extinguisher"] {
-      top: 477.58pt;
-      left: 172.8pt;
-      width: 89.01pt;
-      height: 87.07pt;
-    }
-
-    .certification[data-cert-key="disposal"] {
-      top: 499.43pt;
-      left: 426.01pt;
-      width: 85.53pt;
-      height: 125.99pt;
+    .certification {
+      display: none;
+      flex: 1 1 0;
+      width: 100%;
+      min-width: 0;
+      height: 70pt;
+      object-fit: contain;
     }
 
     .certification.is-visible {
@@ -531,11 +511,13 @@
         <p class="warning-title" id="warning-title"></p>
         <p class="warning-copy" id="warning-copy"></p>
 
-        <img class="certification" data-cert-key="ul" alt="">
-        <img class="certification" data-cert-key="ce" alt="">
-        <img class="certification" data-cert-key="recycle" alt="">
-        <img class="certification" data-cert-key="extinguisher" alt="">
-        <img class="certification" data-cert-key="disposal" alt="">
+        <div class="certifications">
+          <img class="certification" data-cert-key="recycle" alt="">
+          <img class="certification" data-cert-key="extinguisher" alt="">
+          <img class="certification" data-cert-key="ul" alt="">
+          <img class="certification" data-cert-key="ce" alt="">
+          <img class="certification" data-cert-key="disposal" alt="">
+        </div>
 
         <h2 class="table-heading" id="materials-heading"></h2>
         <table class="materials-table" id="materials-table">
