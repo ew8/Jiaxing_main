@@ -155,29 +155,61 @@
         },
         "rows": {
           "type": "array",
-          "maxItems": 4,
+          "maxItems": 6,
           "items": {
-            "type": "object",
-            "required": [
-              "components",
-              "cas",
-              "tlv",
-              "weight"
-            ],
-            "properties": {
-              "components": {
-                "type": "string"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "components",
+                  "cas",
+                  "tlv",
+                  "weight"
+                ],
+                "properties": {
+                  "components": {
+                    "type": "string"
+                  },
+                  "cas": {
+                    "type": "string"
+                  },
+                  "tlv": {
+                    "type": "string"
+                  },
+                  "weight": {
+                    "type": "string"
+                  }
+                }
               },
-              "cas": {
-                "type": "string"
-              },
-              "tlv": {
-                "type": "string"
-              },
-              "weight": {
-                "type": "string"
+              {
+                "type": "object",
+                "required": [
+                  "chemical",
+                  "cas",
+                  "classifications",
+                  "concentration"
+                ],
+                "properties": {
+                  "chemical": {
+                    "type": "string"
+                  },
+                  "cas": {
+                    "type": "string"
+                  },
+                  "classifications": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "concentration": {
+                    "type": "string"
+                  }
+                }
               }
-            }
+            ]
           }
         }
       }

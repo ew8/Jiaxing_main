@@ -167,6 +167,7 @@
     .table-heading,
     .materials-table {
       position: absolute;
+      z-index: 2;
       margin: 0;
       color: var(--ink);
     }
@@ -206,7 +207,7 @@
 
     .brand-logo {
       position: absolute;
-      z-index: 2;
+      z-index: 0;
       top: 159.14pt;
       left: 285.56pt;
       width: 250.87pt;
@@ -241,6 +242,7 @@
 
     .warning-icon {
       position: absolute;
+      z-index: 0;
       top: 407.04pt;
       left: 69.6pt;
       width: 15.96pt;
@@ -275,6 +277,7 @@
     .certification {
       position: absolute;
       display: none;
+      z-index: 0;
       object-fit: fill;
     }
 
@@ -358,6 +361,53 @@
       padding: 0 3pt;
       border: 0.48pt solid #000;
       font-weight: 400;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .materials-table.is-classification-table {
+      height: auto;
+      font-size: 7pt;
+      line-height: 1.08;
+    }
+
+    .materials-table.is-classification-table col:nth-child(1) {
+      width: 70pt;
+    }
+
+    .materials-table.is-classification-table col:nth-child(2) {
+      width: 68pt;
+    }
+
+    .materials-table.is-classification-table col:nth-child(3) {
+      width: 200pt;
+    }
+
+    .materials-table.is-classification-table col:nth-child(4) {
+      width: 113.2pt;
+    }
+
+    .materials-table.is-classification-table th,
+    .materials-table.is-classification-table td {
+      height: auto;
+      padding: 1.25pt 2pt;
+      vertical-align: top;
+    }
+
+    .materials-table.is-classification-table th {
+      vertical-align: middle;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .materials-table.is-classification-table td[data-material-cell="chemical"],
+    .materials-table.is-classification-table td[data-material-cell="cas"],
+    .materials-table.is-classification-table td[data-material-cell="classification"] {
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .materials-table.is-classification-table td[data-material-cell="concentration"] {
       text-align: center;
       vertical-align: middle;
     }
@@ -487,7 +537,7 @@
         <img class="certification" data-cert-key="disposal" alt="">
 
         <h2 class="table-heading" id="materials-heading"></h2>
-        <table class="materials-table">
+        <table class="materials-table" id="materials-table">
           <colgroup>
             <col>
             <col>
@@ -516,7 +566,9 @@
 
       const MANIFEST_URL = "./models/manifest.json";
       const SHANGHAI_TIME_ZONE = "Asia/Shanghai";
-      const MAX_MATERIAL_ROWS = 4;
+      const MAX_LEGACY_MATERIAL_ROWS = 4;
+      const MAX_CLASSIFICATION_MATERIALS = 6;
+      const MAX_CLASSIFICATION_LINES = 14;
 
       const paper = document.getElementById("paper");
       const stage = document.getElementById("paper-stage");
@@ -536,6 +588,12 @@
 
       function normalizeLookupKey(value) {
         return String(value || "").trim().toLocaleLowerCase("en-US");
+      }
+
+      function isClassificationMaterials(rows) {
+        return Array.isArray(rows) && rows.some(function (row) {
+          return Array.isArray(row.classifications);
+        });
       }
 
       function setStatus(message, isError) {
@@ -636,8 +694,25 @@
         if (!config.materials || !Array.isArray(config.materials.rows)) {
           throw new Error("The model configuration does not contain material rows.");
         }
-        if (config.materials.rows.length > MAX_MATERIAL_ROWS) {
-          throw new Error("This A4 template supports at most " + MAX_MATERIAL_ROWS + " material rows.");
+        const classificationTable = isClassificationMaterials(config.materials.rows);
+        if (classificationTable) {
+          const classificationLines = config.materials.rows.reduce(function (total, row) {
+            return total + (Array.isArray(row.classifications) ? row.classifications.length : 0);
+          }, 0);
+          if (config.materials.rows.length > MAX_CLASSIFICATION_MATERIALS) {
+            throw new Error("This A4 template supports at most " + MAX_CLASSIFICATION_MATERIALS + " classified materials.");
+          }
+          if (classificationLines > MAX_CLASSIFICATION_LINES) {
+            throw new Error("This A4 template supports at most " + MAX_CLASSIFICATION_LINES + " classification lines.");
+          }
+          const invalidRow = config.materials.rows.find(function (row) {
+            return !row.chemical || !row.cas || !row.concentration || !Array.isArray(row.classifications) || row.classifications.length === 0;
+          });
+          if (invalidRow) {
+            throw new Error("Each classified material requires chemical, cas, classifications, and concentration.");
+          }
+        } else if (config.materials.rows.length > MAX_LEGACY_MATERIAL_ROWS) {
+          throw new Error("This A4 template supports at most " + MAX_LEGACY_MATERIAL_ROWS + " material rows.");
         }
         if (!Array.isArray(config.materials.columns) || config.materials.columns.length !== 4) {
           throw new Error("The material table must define exactly four columns.");
@@ -724,6 +799,10 @@
       function renderMaterials(materials) {
         setText(document.getElementById("materials-heading"), materials.heading);
 
+        const table = document.getElementById("materials-table");
+        const classificationTable = isClassificationMaterials(materials.rows);
+        table.classList.toggle("is-classification-table", classificationTable);
+
         const header = document.getElementById("materials-header");
         header.replaceChildren();
         materials.columns.forEach(function (column) {
@@ -734,15 +813,52 @@
 
         const body = document.getElementById("materials-body");
         body.replaceChildren();
-        materials.rows.forEach(function (row) {
-          const tr = document.createElement("tr");
-          [row.components, row.cas, row.tlv, row.weight].forEach(function (value) {
-            const cell = document.createElement("td");
-            cell.textContent = value;
-            tr.appendChild(cell);
+
+        if (classificationTable) {
+          materials.rows.forEach(function (material) {
+            material.classifications.forEach(function (classification, classificationIndex) {
+              const tr = document.createElement("tr");
+
+              if (classificationIndex === 0) {
+                [
+                  { value: material.chemical, type: "chemical" },
+                  { value: material.cas, type: "cas" }
+                ].forEach(function (item) {
+                  const cell = document.createElement("td");
+                  cell.rowSpan = material.classifications.length;
+                  cell.dataset.materialCell = item.type;
+                  cell.textContent = item.value;
+                  tr.appendChild(cell);
+                });
+              }
+
+              const classificationCell = document.createElement("td");
+              classificationCell.dataset.materialCell = "classification";
+              classificationCell.textContent = classification;
+              tr.appendChild(classificationCell);
+
+              if (classificationIndex === 0) {
+                const concentrationCell = document.createElement("td");
+                concentrationCell.rowSpan = material.classifications.length;
+                concentrationCell.dataset.materialCell = "concentration";
+                concentrationCell.textContent = material.concentration;
+                tr.appendChild(concentrationCell);
+              }
+
+              body.appendChild(tr);
+            });
           });
-          body.appendChild(tr);
-        });
+        } else {
+          materials.rows.forEach(function (row) {
+            const tr = document.createElement("tr");
+            [row.components, row.cas, row.tlv, row.weight].forEach(function (value) {
+              const cell = document.createElement("td");
+              cell.textContent = value;
+              tr.appendChild(cell);
+            });
+            body.appendChild(tr);
+          });
+        }
       }
 
       function fitSpecifications() {
