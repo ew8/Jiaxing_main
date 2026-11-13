@@ -89,30 +89,60 @@
       "TLV",
       "%Wt"
     ],
-    "rows": [
+"rows": [
       {
-        "components": "Lead(Pb,PbO₂,PbSO₄)",
+        "chemical": "Lead",
         "cas": "7439-92-1",
-        "tlv": "0.05mg/m³",
-        "weight": "About 70%"
+        "classifications": [
+          "Repr. 1A; H360",
+          "STOT RE 1; H372"
+        ],
+        "concentration": "48"
       },
       {
-        "components": "Sulfuric Acid",
+        "chemical": "Lead dioxide",
+        "cas": "1309-60-0",
+        "classifications": [
+          "Acute Tox. 4; H302/H332",
+          "Repr. 1A; H360",
+          "STOT RE 2; H373",
+          "Aquatic Acute 1; H400/H410"
+        ],
+        "concentration": "22"
+      },
+      {
+        "chemical": "Sulfuric acid",
         "cas": "7664-93-9",
-        "tlv": "1mg/m³",
-        "weight": "About 20%"
+        "classifications": [
+          "Met. Corr. 1; H290",
+          "Skin Corr. 1; H314",
+          "Eye Dam. 1; H318"
+        ],
+        "concentration": "15"
       },
       {
-        "components": "Fiberglass Separator",
-        "cas": "65997-17-3",
-        "tlv": "N/A",
-        "weight": "About 5%"
-      },
-      {
-        "components": "Container (ABS)",
+        "chemical": "ABS resin",
         "cas": "9003-56-9",
-        "tlv": "N/A",
-        "weight": "About5%"
+        "classifications": [
+          "Not classified"
+        ],
+        "concentration": "9"
+      },
+      {
+        "chemical": "Tin",
+        "cas": "7440-31-5",
+        "classifications": [
+          "Not classified"
+        ],
+        "concentration": "4"
+      },
+      {
+        "chemical": "Calcium",
+        "cas": "7440-70-2",
+        "classifications": [
+          "Not classified"
+        ],
+        "concentration": "2"
       }
     ]
   }
