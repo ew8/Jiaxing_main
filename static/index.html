@@ -418,6 +418,61 @@
       display: none;
     }
 
+    .download-help {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    .download-help[hidden] {
+      display: none;
+    }
+
+    .download-help-card p[hidden],
+    .download-help-actions .button[hidden] {
+      display: none;
+    }
+
+    .download-help-card {
+      width: min(100%, 460px);
+      padding: 24px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+    }
+
+    .download-help-card h2 {
+      margin: 0 0 12px;
+      color: #26313c;
+      font-size: 20px;
+      line-height: 1.3;
+    }
+
+    .download-help-card p {
+      margin: 0 0 12px;
+      color: #5b6773;
+      line-height: 1.55;
+    }
+
+    .download-help-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .download-help-actions .button {
+      flex: 1 1 150px;
+    }
+
+    body.download-help-open {
+      overflow: hidden;
+    }
+
     @media (max-width: 720px) {
       .toolbar {
         padding: 10px 12px;
@@ -457,7 +512,8 @@
       }
 
       .toolbar,
-      .state-panel {
+      .state-panel,
+      .download-help {
         display: none !important;
       }
 
@@ -541,6 +597,44 @@
     </section>
   </main>
 
+  <div
+    class="download-help"
+    id="download-help"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="download-help-title"
+    aria-describedby="download-help-message"
+    hidden
+  >
+    <div class="download-help-card">
+      <h2 id="download-help-title">Download PDF in your browser</h2>
+      <p id="download-help-message">
+        WeChat cannot download PDF files generated inside this page directly.
+        Tap <strong>...</strong> at the top right, choose <strong>Open in Browser</strong>,
+        then download the PDF again.
+      </p>
+      <p id="download-help-share-tip" hidden>
+        You can also use the system sharing option below to save the generated PDF.
+      </p>
+      <div class="download-help-actions">
+        <button
+          class="button button-primary"
+          id="share-pdf-button"
+          type="button"
+          hidden
+        >
+          Share or save PDF
+        </button>
+        <button class="button button-secondary" id="copy-page-link" type="button">
+          Copy page link
+        </button>
+        <button class="button button-secondary" id="close-download-help" type="button">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="./assets/vendor/html2canvas.min.js"></script>
   <script src="./assets/vendor/jspdf.umd.min.js"></script>
   <script>
@@ -566,11 +660,18 @@
       const stateTitle = document.getElementById("state-title");
       const stateMessage = document.getElementById("state-message");
       const specs = document.getElementById("specifications");
+      const downloadHelp = document.getElementById("download-help");
+      const downloadHelpShareTip = document.getElementById("download-help-share-tip");
+      const sharePdfButton = document.getElementById("share-pdf-button");
+      const copyPageLinkButton = document.getElementById("copy-page-link");
+      const closeDownloadHelpButton = document.getElementById("close-download-help");
 
       let manifest = null;
       let modelConfig = null;
       let batchValue = null;
       let renderReady = false;
+      let pendingPdfFile = null;
+      let downloadHelpReturnFocus = null;
 
       function normalizeLookupKey(value) {
         return String(value || "").trim().toLocaleLowerCase("en-US");
@@ -1028,6 +1129,105 @@
           .slice(0, 80);
       }
 
+      function isWeChatBrowser() {
+        return /MicroMessenger/i.test(navigator.userAgent);
+      }
+
+      function getPdfFileName() {
+        return (
+          safeFileName(modelConfig.id) +
+          "_" +
+          safeFileName(modelConfig.displayName) +
+          "_" +
+          safeFileName(batchValue) +
+          ".pdf"
+        );
+      }
+
+      function canSharePdf(file) {
+        try {
+          return (
+            typeof navigator.share === "function" &&
+            typeof navigator.canShare === "function" &&
+            navigator.canShare({ files: [file] })
+          );
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function openDownloadHelp(file) {
+        downloadHelpReturnFocus = document.activeElement;
+        pendingPdfFile = file || null;
+        const canShare = Boolean(pendingPdfFile && canSharePdf(pendingPdfFile));
+        sharePdfButton.hidden = !canShare;
+        downloadHelpShareTip.hidden = !canShare;
+        downloadHelp.hidden = false;
+        document.body.classList.add("download-help-open");
+        requestAnimationFrame(function () {
+          (canShare ? sharePdfButton : copyPageLinkButton).focus();
+        });
+      }
+
+      function closeDownloadHelp() {
+        if (downloadHelp.hidden) {
+          return;
+        }
+        downloadHelp.hidden = true;
+        document.body.classList.remove("download-help-open");
+        pendingPdfFile = null;
+        downloadHelpShareTip.hidden = true;
+        sharePdfButton.hidden = true;
+        if (downloadHelpReturnFocus && typeof downloadHelpReturnFocus.focus === "function") {
+          downloadHelpReturnFocus.focus();
+        }
+      }
+
+      async function copyTextToClipboard(value) {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(value);
+          return;
+        }
+
+        const textArea = document.createElement("textarea");
+        textArea.value = value;
+        textArea.setAttribute("readonly", "");
+        textArea.style.position = "fixed";
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.select();
+        const copied = document.execCommand("copy");
+        textArea.remove();
+        if (!copied) {
+          throw new Error("Clipboard copy was not supported.");
+        }
+      }
+
+      async function sharePendingPdf() {
+        if (!pendingPdfFile) {
+          return;
+        }
+
+        try {
+          await navigator.share({
+            files: [pendingPdfFile],
+            title: pendingPdfFile.name
+          });
+          closeDownloadHelp();
+          setStatus("PDF ready to save.", false);
+        } catch (error) {
+          if (error.name === "AbortError") {
+            return;
+          }
+          logDiagnostic("PDF sharing failed.", error, {
+            fileName: pendingPdfFile.name
+          });
+          setStatus("Unable to save the PDF in this browser.", true);
+        }
+      }
+
       async function downloadPdf() {
         if (!renderReady || typeof window.html2canvas !== "function" || !window.jspdf) {
           return;
@@ -1070,14 +1270,24 @@
           });
 
           pdf.addImage(imageData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
-          pdf.save(
-            safeFileName(modelConfig.id) +
-              "_" +
-              safeFileName(modelConfig.displayName) +
-              "_" +
-              safeFileName(batchValue) +
-              ".pdf"
-          );
+          const fileName = getPdfFileName();
+          if (isWeChatBrowser()) {
+            let pdfFile = null;
+            if (
+              typeof File === "function" &&
+              typeof navigator.share === "function" &&
+              typeof navigator.canShare === "function"
+            ) {
+              pdfFile = new File([pdf.output("blob")], fileName, {
+                type: "application/pdf"
+              });
+            }
+            openDownloadHelp(pdfFile);
+            setStatus("Open in browser to download the PDF.", false);
+            return;
+          }
+
+          pdf.save(fileName);
           setStatus("PDF generated.", false);
         } catch (error) {
           logDiagnostic("PDF generation failed.", error, {
@@ -1192,6 +1402,27 @@
         window.print();
       });
       downloadButton.addEventListener("click", downloadPdf);
+      sharePdfButton.addEventListener("click", sharePendingPdf);
+      copyPageLinkButton.addEventListener("click", async function () {
+        try {
+          await copyTextToClipboard(window.location.href);
+          setStatus("Page link copied.", false);
+        } catch (error) {
+          logDiagnostic("Unable to copy the page link.", error);
+          setStatus("Unable to copy the page link.", true);
+        }
+      });
+      closeDownloadHelpButton.addEventListener("click", closeDownloadHelp);
+      downloadHelp.addEventListener("click", function (event) {
+        if (event.target === downloadHelp) {
+          closeDownloadHelp();
+        }
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !downloadHelp.hidden) {
+          closeDownloadHelp();
+        }
+      });
       window.addEventListener("resize", fitPreview);
       window.addEventListener("beforeprint", function () {
         paper.style.transform = "none";
