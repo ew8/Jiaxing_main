@@ -549,6 +549,9 @@
 
       const MANIFEST_URL = "./models/manifest.json";
       const BATCH_REGISTRY_URL = "./models/batches.json";
+      const DIAGNOSTICS_KEY = "modelPage.diagnostics.v1";
+      const MAX_DIAGNOSTICS = 20;
+      const MAX_BODY_PREVIEW = 4000;
       const MAX_LEGACY_MATERIAL_ROWS = 4;
       const MAX_CLASSIFICATION_MATERIALS = 6;
       const MAX_CLASSIFICATION_LINES = 14;
@@ -579,6 +582,95 @@
         });
       }
 
+      function serializeError(error) {
+        if (!error) {
+          return null;
+        }
+        return {
+          name: error.name || "Error",
+          message: error.message || String(error),
+          stack: error.stack || "",
+          cause: error.cause
+            ? {
+                name: error.cause.name || "Error",
+                message: error.cause.message || String(error.cause),
+                stack: error.cause.stack || ""
+              }
+            : null
+        };
+      }
+
+      function getDiagnostics() {
+        try {
+          const entries = JSON.parse(localStorage.getItem(DIAGNOSTICS_KEY) || "[]");
+          return Array.isArray(entries) ? entries : [];
+        } catch (error) {
+          console.error("[ModelPage] Unable to read diagnostic logs.", error);
+          return [];
+        }
+      }
+
+      function logDiagnostic(context, error, details) {
+        const entry = {
+          timestamp: new Date().toISOString(),
+          context: context || "Unknown error",
+          url: window.location.href,
+          userAgent: navigator.userAgent,
+          error: serializeError(error),
+          details: details || (error && error.details) || null
+        };
+
+        console.error("[ModelPage]", context, entry, error || "");
+
+        try {
+          const entries = getDiagnostics();
+          entries.push(entry);
+          localStorage.setItem(
+            DIAGNOSTICS_KEY,
+            JSON.stringify(entries.slice(-MAX_DIAGNOSTICS))
+          );
+        } catch (storageError) {
+          console.error("[ModelPage] Unable to persist diagnostic log.", storageError);
+        }
+
+        return entry;
+      }
+
+      function createDiagnosticError(message, details, cause) {
+        const error = new Error(message);
+        error.details = details || null;
+        if (cause) {
+          error.cause = cause;
+        }
+        return error;
+      }
+
+      async function fetchResource(url) {
+        try {
+          return await fetch(url, { cache: "no-cache" });
+        } catch (error) {
+          throw createDiagnosticError("Network request failed.", { source: url }, error);
+        }
+      }
+
+      async function readJsonResponse(response, source) {
+        const text = await response.text();
+        const details = {
+          source: source,
+          responseUrl: response.url,
+          status: response.status,
+          contentType: response.headers.get("content-type") || "",
+          bodyLength: text.length,
+          bodyPreview: text.slice(0, MAX_BODY_PREVIEW)
+        };
+
+        try {
+          return JSON.parse(text.replace(/^\uFEFF/, ""));
+        } catch (error) {
+          throw createDiagnosticError("Invalid JSON response.", details, error);
+        }
+      }
+
       function setStatus(message, isError) {
         toolbarStatus.textContent = message;
         toolbarStatus.classList.toggle("is-error", Boolean(isError));
@@ -598,7 +690,7 @@
       }
 
       function showNotFound() {
-        showError("Page not found", "Please check the URL.");
+        showError("Page not found", "The requested page is unavailable.");
       }
 
       function setText(element, value) {
@@ -879,12 +971,34 @@
         const images = Array.from(paper.querySelectorAll("img"));
         await Promise.all(
           images.map(function (image) {
-            if (image.complete && image.naturalWidth > 0) {
+            if (image.complete) {
+              if (image.naturalWidth === 0) {
+                logDiagnostic(
+                  "Asset failed to load.",
+                  createDiagnosticError("Image failed to load.", {
+                    src: image.src,
+                    alt: image.alt || ""
+                  })
+                );
+              }
               return Promise.resolve();
             }
             return new Promise(function (resolve) {
               image.addEventListener("load", resolve, { once: true });
-              image.addEventListener("error", resolve, { once: true });
+              image.addEventListener(
+                "error",
+                function () {
+                  logDiagnostic(
+                    "Asset failed to load.",
+                    createDiagnosticError("Image failed to load.", {
+                      src: image.src,
+                      alt: image.alt || ""
+                    })
+                  );
+                  resolve();
+                },
+                { once: true }
+              );
             });
           })
         );
@@ -966,7 +1080,10 @@
           );
           setStatus("PDF generated.", false);
         } catch (error) {
-          console.error(error);
+          logDiagnostic("PDF generation failed.", error, {
+            modelId: modelConfig && modelConfig.id,
+            batch: batchValue
+          });
           setStatus("PDF generation failed. Use Print instead.", true);
         } finally {
           fitPreview();
@@ -984,39 +1101,75 @@
         try {
           const params = new URLSearchParams(window.location.search);
           const [manifestResponse, batchesResponse] = await Promise.all([
-            fetch(MANIFEST_URL, { cache: "no-cache" }),
-            fetch(BATCH_REGISTRY_URL, { cache: "no-cache" })
+            fetchResource(MANIFEST_URL),
+            fetchResource(BATCH_REGISTRY_URL)
           ]);
           if (!manifestResponse.ok || !batchesResponse.ok) {
-            throw new Error("Unable to load model or batch configuration.");
+            throw createDiagnosticError("Unable to load model or batch configuration.", {
+              manifest: {
+                url: manifestResponse.url,
+                status: manifestResponse.status
+              },
+              batches: {
+                url: batchesResponse.url,
+                status: batchesResponse.status
+              }
+            });
           }
 
-          manifest = await manifestResponse.json();
-          const batchRegistry = await batchesResponse.json();
+          manifest = await readJsonResponse(manifestResponse, MANIFEST_URL);
+          const batchRegistry = await readJsonResponse(
+            batchesResponse,
+            BATCH_REGISTRY_URL
+          );
           const lookup = buildModelLookup(manifest);
           const requestedModel = params.get("model") || manifest.default;
           const entry = lookup.get(normalizeLookupKey(requestedModel));
           const requestedBatch = (params.get("batch") || params.get("time") || "").trim();
 
           if (!entry || !requestedBatch) {
+            logDiagnostic("Model page lookup failed.", null, {
+              requestedModel: requestedModel,
+              requestedBatch: requestedBatch,
+              reason: !entry ? "unknown-model" : "missing-batch"
+            });
             showNotFound();
             return;
           }
 
           const allowedBatches = batchRegistry.models && batchRegistry.models[entry.id];
           if (!Array.isArray(allowedBatches) || !allowedBatches.includes(requestedBatch)) {
+            logDiagnostic("Model page lookup failed.", null, {
+              requestedModel: requestedModel,
+              requestedBatch: requestedBatch,
+              modelId: entry.id,
+              reason: "batch-not-allowed",
+              allowedBatches: allowedBatches || []
+            });
             showNotFound();
             return;
           }
 
           batchValue = requestedBatch;
 
-          const configResponse = await fetch(entry.file, { cache: "no-cache" });
+          const configResponse = await fetchResource(entry.file);
           if (!configResponse.ok) {
-            throw new Error('Unable to load configuration file "' + entry.file + '".');
+            throw createDiagnosticError("Unable to load model configuration.", {
+              source: entry.file,
+              responseUrl: configResponse.url,
+              status: configResponse.status,
+              contentType: configResponse.headers.get("content-type") || ""
+            });
           }
 
-          modelConfig = await configResponse.json();
+          modelConfig = await readJsonResponse(configResponse, entry.file);
+          if (normalizeLookupKey(modelConfig.id) !== normalizeLookupKey(entry.id)) {
+            throw createDiagnosticError("Model configuration ID does not match the manifest.", {
+              source: entry.file,
+              expectedId: entry.id,
+              actualId: modelConfig.id
+            });
+          }
           renderConfig(modelConfig);
           await waitForAssets();
           fitSpecifications();
@@ -1027,8 +1180,11 @@
           printButton.disabled = false;
           setStatus("Ready.", false);
         } catch (error) {
-          console.error(error);
-          showError("Unable to load model", error.message || "Unexpected configuration error.");
+          logDiagnostic("Model page initialization failed.", error);
+          showError(
+            "Unable to load model",
+            "The page could not be loaded. Please check the link and try again."
+          );
         }
       }
 
@@ -1042,6 +1198,36 @@
         paper.style.left = "0";
       });
       window.addEventListener("afterprint", fitPreview);
+
+      window.modelPageDiagnostics = {
+        get: getDiagnostics,
+        clear: function () {
+          try {
+            localStorage.removeItem(DIAGNOSTICS_KEY);
+          } catch (error) {
+            console.error("[ModelPage] Unable to clear diagnostic logs.", error);
+          }
+        }
+      };
+
+      window.addEventListener("error", function (event) {
+        if (event.error) {
+          logDiagnostic("Unhandled runtime error.", event.error);
+          return;
+        }
+        logDiagnostic(
+          "Unhandled runtime error.",
+          createDiagnosticError(event.message || "Unknown runtime error.", {
+            source: event.filename || "",
+            line: event.lineno || 0,
+            column: event.colno || 0
+          })
+        );
+      });
+
+      window.addEventListener("unhandledrejection", function (event) {
+        logDiagnostic("Unhandled promise rejection.", event.reason);
+      });
 
       initialize();
     })();
