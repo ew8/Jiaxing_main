@@ -882,12 +882,13 @@
         appendSpecification("Address", contact.address);
 
         const contactRow = document.createElement("p");
-        contactRow.className = "email-phone";
+        contactRow.className = "email";
         const email = document.createElement("span");
-        const phone = document.createElement("span");
+        // const phone = document.createElement("span");
         email.textContent = "Email: " + contact.email;
-        phone.textContent = "Phone: " + contact.phone;
-        contactRow.append(email, phone);
+        // phone.textContent = "Phone: " + contact.phone;
+        // contactRow.append(email, phone);
+        contactRow.append(email);
         specs.appendChild(contactRow);
       }
 
