@@ -49,17 +49,17 @@
     "ratedCapacity": {
       "type": "string",
       "minLength": 1,
-      "description": "Variable part only. Suffix @20Hr, 25C stays on the template, e.g. 9Ah"
+      "description": "Variable part only, e.g. 9Ah or 4.5Ah. Page appends ' @20Hr，25℃'."
     },
     "batterySize": {
       "type": "string",
       "minLength": 1,
-      "description": "Variable part only. mm suffix stays on the template, e.g. 151x65.5x100"
+      "description": "Variable part only, e.g. 151x65.5x100. Page appends 'mm'."
     },
     "batteryWeight": {
       "type": "string",
       "minLength": 1,
-      "description": "Variable part only. (±3%) KG suffix stays on the template, e.g. 2.62"
+      "description": "Variable part only, e.g. 2.62. Page appends '(±3%) KG'."
     },
     "materials": {
       "type": "object",
