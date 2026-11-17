@@ -140,16 +140,23 @@
       margin: 0 auto;
     }
 
-    .paper {
+    .paper-stack {
       position: absolute;
       top: 0;
-      left: 50%;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      transform-origin: top left;
+    }
+
+    .paper {
+      position: relative;
       width: var(--paper-width);
       height: var(--paper-height);
       overflow: hidden;
-      background: #fff;
+      background: #fff center / 100% 100% no-repeat;
       box-shadow: 0 18px 55px rgba(16, 30, 42, 0.16);
-      transform-origin: top left;
       print-color-adjust: exact;
       -webkit-print-color-adjust: exact;
     }
@@ -158,362 +165,226 @@
       opacity: 0.55;
     }
 
-    .page-title,
-    .batch-info,
-    .model-title,
-    .specs,
-    .warning-title,
-    .warning-copy,
-    .table-heading,
-    .materials-table {
+    .field {
       position: absolute;
       z-index: 2;
       margin: 0;
-      color: var(--ink);
+      padding: 0;
+      color: #000;
+      white-space: nowrap;
+      line-height: 1;
+      pointer-events: none;
+      /* Align CSS glyph baseline to the PDF text origin. */
+      transform: translateY(-0.78em);
     }
 
-    .page-title {
-      top: 41.85pt;
-      left: 76.56pt;
-      max-width: 385pt;
+    .field-model {
+      top: 63.12pt;
+      left: 40.55pt;
       font-size: 14.05pt;
       font-weight: 700;
-      line-height: 1;
     }
 
-    .batch-info {
-      top: 41.85pt;
-      right: 23.5pt;
-      max-width: 150pt;
-      font-size: 9.3pt;
-      line-height: 1;
+    .field-batch {
+      top: 38pt;
+      right: 28pt;
+      left: auto;
+      font-size: 9.05pt;
+      font-weight: 700;
       text-align: right;
-      white-space: nowrap;
-    }
-
-    .batch-info strong {
-      font-weight: 700;
-    }
-
-    .model-title {
-      top: 117.07pt;
-      left: 76.56pt;
-      max-width: 430pt;
-      font-size: 18pt;
-      font-weight: 700;
-      line-height: 1;
-      overflow-wrap: anywhere;
     }
 
     .brand-logo {
       position: absolute;
-      z-index: 0;
-      top: 159.14pt;
-      left: 285.56pt;
-      width: 250.87pt;
-      height: 110.73pt;
-      object-fit: fill;
+      top: 45pt;
+      right: 24pt;
+      z-index: 2;
+      width: 78pt;
+      height: auto;
+      pointer-events: none;
     }
 
-    .specs {
-      top: 149.77pt;
-      left: 76.56pt;
-      width: 468pt;
-      max-height: 257pt;
-      overflow: hidden;
+    .field-voltage,
+    .field-capacity,
+    .field-size,
+    .field-weight,
+    .field-declaration-model {
       font-size: 10.45pt;
-      line-height: 13.98pt;
+      font-weight: 400;
     }
 
-    .specs p {
-      margin: 0 0 9.42pt;
-      line-height: 13.98pt;
+    .field-voltage {
+      top: 166.77pt;
+      left: 152.16pt;
     }
 
-    .specs p:last-child {
-      margin-bottom: 0;
+    .field-capacity {
+      top: 166.89pt;
+      left: 427.44pt;
     }
 
-    .email-phone {
-      display: flex;
-      gap: 42pt;
-      white-space: nowrap;
+    .field-size {
+      top: 187.29pt;
+      left: 152.16pt;
     }
 
-    .warning-icon {
+    .field-weight {
+      top: 187.29pt;
+      left: 427.44pt;
+    }
+
+    .field-declaration-model {
+      top: 116.93pt;
+      left: 115.32pt;
+    }
+
+    .section-42 {
       position: absolute;
-      z-index: 0;
-      top: 407.04pt;
-      left: 69.6pt;
-      width: 15.96pt;
-      height: 13.32pt;
-      object-fit: fill;
-    }
-
-    .warning-title {
-      top: 407.03pt;
-      left: 87pt;
+      top: 718.13pt;
+      left: 39pt;
+      right: 36pt;
+      z-index: 2;
+      margin: 0;
+      padding: 0;
+      color: #000;
       font-size: 10.45pt;
-      font-weight: 700;
-      line-height: 1;
-    }
-
-    .warning-title::after {
-      content: ":";
-    }
-
-    .warning-copy {
-      top: 430.57pt;
-      left: 76.56pt;
-      width: 496pt;
-      font-size: 10.45pt;
-      line-height: 23.4pt;
-    }
-
-    .warning-copy span {
-      display: block;
-      white-space: nowrap;
-    }
-
-    .certifications {
-      position: absolute;
-      z-index: 0;
-      top: 485pt;
-      left: 76.56pt;
-      width: 451pt;
-      height: 74pt;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8pt;
-    }
-
-    .certification {
-      display: none;
-      flex: 1 1 0;
-      width: 100%;
-      min-width: 0;
-      height: 70pt;
-      object-fit: contain;
-    }
-
-    .certification.is-visible {
-      display: block;
-    }
-
-    .table-heading {
-      top: 633.23pt;
-      left: 76.56pt;
-      font-size: 10.45pt;
-      font-weight: 700;
-      line-height: 1;
+      font-weight: 400;
+      line-height: 14pt;
+      white-space: pre-wrap;
+      pointer-events: none;
     }
 
     .materials-table {
-      top: 652.2pt;
-      left: 75.95pt;
-      width: 451.2pt;
-      height: 82.24pt;
-      table-layout: fixed;
+      position: absolute;
+      top: 533pt;
+      left: 42pt;
+      z-index: 2;
+      width: 496pt;
       border-collapse: collapse;
+      table-layout: fixed;
+      color: #000;
       font-size: 10.45pt;
-      line-height: 1;
-    }
-
-    .materials-table col:nth-child(1) {
-      width: 149.8pt;
-    }
-
-    .materials-table col:nth-child(2) {
-      width: 102.2pt;
-    }
-
-    .materials-table col:nth-child(3) {
-      width: 102.2pt;
-    }
-
-    .materials-table col:nth-child(4) {
-      width: 97pt;
+      line-height: 1.2;
+      pointer-events: none;
     }
 
     .materials-table th,
     .materials-table td {
-      height: 16.1pt;
-      padding: 0 3pt;
-      border: 0.48pt solid #000;
+      border: 1.1pt solid #000;
+      padding: 6pt 4pt;
+      text-align: center;
+      vertical-align: middle;
       font-weight: 400;
-      text-align: center;
-      vertical-align: middle;
+      word-break: break-word;
     }
 
-    .materials-table.is-classification-table {
-      height: auto;
-      font-size: 7pt;
-      line-height: 1.08;
+    .materials-table th {
+      font-weight: 700;
     }
 
-    .materials-table.is-classification-table col:nth-child(1) {
-      width: 70pt;
+    .materials-table col.col-chemical {
+      width: 29.4%;
     }
 
-    .materials-table.is-classification-table col:nth-child(2) {
-      width: 68pt;
+    .materials-table col.col-cas {
+      width: 38.6%;
     }
 
-    .materials-table.is-classification-table col:nth-child(3) {
-      width: 200pt;
-    }
-
-    .materials-table.is-classification-table col:nth-child(4) {
-      width: 113.2pt;
-    }
-
-    .materials-table.is-classification-table th,
-    .materials-table.is-classification-table td {
-      height: auto;
-      padding: 1.25pt 2pt;
-      vertical-align: top;
-    }
-
-    .materials-table.is-classification-table th {
-      vertical-align: middle;
-      text-align: center;
-      line-height: 1.1;
-    }
-
-    .materials-table.is-classification-table td[data-material-cell="chemical"],
-    .materials-table.is-classification-table td[data-material-cell="cas"],
-    .materials-table.is-classification-table td[data-material-cell="classification"] {
-      text-align: left;
-      vertical-align: middle;
-    }
-
-    .materials-table.is-classification-table td[data-material-cell="concentration"] {
-      text-align: center;
-      vertical-align: middle;
+    .materials-table col.col-concentration {
+      width: 32%;
     }
 
     .state-panel {
-      width: min(100%, 560px);
-      margin: 50px auto 0;
-      padding: 28px;
-      border: 1px solid #d7dee5;
-      border-radius: 8px;
+      width: min(100%, 640px);
+      margin: 48px auto 0;
+      padding: 28px 24px;
+      border: 1px solid #d7dee6;
+      border-radius: 14px;
       background: #fff;
-      box-shadow: 0 12px 35px rgba(16, 30, 42, 0.08);
+      box-shadow: 0 10px 30px rgba(16, 30, 42, 0.08);
+      text-align: center;
+    }
+
+    .state-panel[hidden],
+    .paper-stage[hidden] {
+      display: none !important;
     }
 
     .state-panel h1 {
-      margin: 0 0 10px;
-      font-size: 20px;
+      margin: 0 0 8px;
+      color: #243040;
+      font-size: 22px;
     }
 
     .state-panel p {
       margin: 0;
-      color: #5b6773;
-      line-height: 1.6;
-    }
-
-    .state-panel[hidden] {
-      display: none;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
     .download-help {
       position: fixed;
       inset: 0;
-      z-index: 100;
+      z-index: 40;
       display: grid;
       place-items: center;
       padding: 20px;
-      background: rgba(15, 23, 42, 0.5);
+      background: rgba(15, 23, 42, 0.45);
     }
 
     .download-help[hidden] {
-      display: none;
+      display: none !important;
     }
 
     .download-help-card p[hidden],
     .download-help-actions .button[hidden] {
-      display: none;
+      display: none !important;
     }
 
     .download-help-card {
-      width: min(100%, 460px);
-      padding: 24px;
-      border-radius: 8px;
+      width: min(100%, 420px);
+      padding: 22px 20px;
+      border-radius: 14px;
       background: #fff;
-      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.24);
     }
 
     .download-help-card h2 {
-      margin: 0 0 12px;
-      color: #26313c;
-      font-size: 20px;
-      line-height: 1.3;
+      margin: 0 0 8px;
+      color: #243040;
+      font-size: 18px;
     }
 
     .download-help-card p {
-      margin: 0 0 12px;
-      color: #5b6773;
-      line-height: 1.55;
+      margin: 0 0 16px;
+      color: #526274;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
     .download-help-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 20px;
     }
 
     .download-help-actions .button {
-      flex: 1 1 150px;
+      flex: 1 1 auto;
     }
 
     body.download-help-open {
       overflow: hidden;
     }
 
-    @media (max-width: 720px) {
-      .toolbar {
-        padding: 10px 12px;
-      }
-
-      .toolbar-inner {
-        gap: 10px;
-      }
-
-      .toolbar-title {
-        font-size: 13px;
-      }
-
-      .toolbar-status {
-        font-size: 11px;
-      }
-
-      .button {
-        min-height: 38px;
-        padding: 0 12px;
-        font-size: 13px;
-      }
-
-      .preview {
-        padding: 18px 10px 34px;
-      }
-    }
-
     @media print {
-      @page {
-        size: A4;
-        margin: 0;
-      }
-
       body {
         background: #fff;
       }
 
       .toolbar,
-      .state-panel,
-      .download-help {
+      .download-help,
+      .state-panel {
         display: none !important;
       }
 
@@ -521,112 +392,132 @@
         padding: 0;
       }
 
-      .paper-stage {
-        width: auto;
+      .paper-stage,
+      .paper-stack {
+        width: auto !important;
         height: auto !important;
+        position: static !important;
+        transform: none !important;
+        left: 0 !important;
+        gap: 0;
       }
 
       .paper {
-        position: static;
-        width: 210mm;
-        height: 297mm;
-        margin: 0;
         box-shadow: none;
-        opacity: 1;
-        transform: none !important;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .paper:last-child {
+        page-break-after: auto;
+        break-after: auto;
       }
     }
   </style>
 </head>
 <body>
-  <header class="toolbar">
+  <div class="toolbar">
     <div class="toolbar-inner">
       <div class="toolbar-heading">
         <div class="toolbar-title" id="toolbar-title">Model Document Generator</div>
-        <div class="toolbar-status" id="toolbar-status" role="status">Loading configuration...</div>
+        <div class="toolbar-status" id="toolbar-status">Loading configuration...</div>
       </div>
       <div class="toolbar-actions">
         <button class="button button-secondary" id="print-button" type="button" disabled>Print</button>
         <button class="button button-primary" id="download-button" type="button" disabled>Download PDF</button>
       </div>
     </div>
-  </header>
+  </div>
 
   <main class="preview">
-    <div class="paper-stage" id="paper-stage">
-      <article class="paper" id="paper" aria-busy="true">
-        <h1 class="page-title" id="page-title"></h1>
-        <p class="batch-info"><strong>Batch:</strong> <span id="batch-value"></span></p>
+    <div class="paper-stage" id="paper-stage" hidden>
+      <div class="paper-stack" id="paper-stack" aria-busy="true">
+        <section
+          class="paper"
+          id="page-1"
+          data-page="1"
+          style="background-image: url('./assets/qr/page-1.png?v=5')"
+          aria-label="Page 1"
+        >
+          <p class="field field-model" id="field-model"></p>
+          <p class="field field-batch" id="field-batch"></p>
+          <img
+            class="brand-logo"
+            id="brand-logo"
+            src="./assets/qr/xinleina-logo.png?v=1"
+            alt="XINLEINA"
+          >
+          <p class="field field-voltage" id="field-voltage"></p>
+          <p class="field field-capacity" id="field-capacity"></p>
+          <p class="field field-size" id="field-size"></p>
+          <p class="field field-weight" id="field-weight"></p>
+          <table class="materials-table" id="materials-table" aria-label="Critical Raw Materials">
+            <colgroup>
+              <col class="col-chemical">
+              <col class="col-cas">
+              <col class="col-concentration">
+            </colgroup>
+            <thead>
+              <tr id="materials-header"></tr>
+            </thead>
+            <tbody id="materials-body"></tbody>
+          </table>
+        </section>
 
-        <p class="model-title">Model: <span id="model-name"></span></p>
-        <img class="brand-logo" id="brand-logo" alt="">
+        <section
+          class="paper"
+          id="page-2"
+          data-page="2"
+          style="background-image: url('./assets/qr/page-2.png?v=3')"
+          aria-label="Page 2"
+        >
+          <p class="field field-declaration-model" id="field-declaration-model"></p>
+          <p class="section-42" id="section-42">4.2 Standardized Management (Full-Process Compliance Control):
+In accordance with international standards and the "Technical Specification for Pollution Control in the Treatment of Waste
+Lead-Acid Batteries" (HJ 519-2020) issued by the Ministry of Ecology and Environment, industrial enterprises must strictly
+comply with the following standards when managing waste batteries:</p>
+        </section>
 
-        <section class="specs" id="specifications" aria-label="Product specifications"></section>
-
-        <img class="warning-icon" src="./assets/common/warning-triangle.jpg" alt="">
-        <p class="warning-title" id="warning-title"></p>
-        <p class="warning-copy" id="warning-copy"></p>
-
-        <div class="certifications">
-          <img class="certification" data-cert-key="recycle" alt="">
-          <img class="certification" data-cert-key="extinguisher" alt="">
-          <img class="certification" data-cert-key="ul" alt="">
-          <img class="certification" data-cert-key="ce" alt="">
-          <img class="certification" data-cert-key="disposal" alt="">
-        </div>
-
-        <h2 class="table-heading" id="materials-heading"></h2>
-        <table class="materials-table" id="materials-table">
-          <colgroup>
-            <col>
-            <col>
-            <col>
-            <col>
-          </colgroup>
-          <thead>
-            <tr id="materials-header"></tr>
-          </thead>
-          <tbody id="materials-body"></tbody>
-        </table>
-      </article>
+        <section
+          class="paper"
+          id="page-3"
+          data-page="3"
+          style="background-image: url('./assets/qr/page-3.png?v=2')"
+          aria-label="Page 3"
+        ></section>
+      </div>
     </div>
 
-    <section class="state-panel" id="state-panel" hidden>
+    <div class="state-panel" id="state-panel" hidden>
       <h1 id="state-title">Unable to load model</h1>
-      <p id="state-message"></p>
-    </section>
+      <p id="state-message">The page could not be loaded. Please check the link and try again.</p>
+    </div>
   </main>
 
   <div
     class="download-help"
     id="download-help"
+    hidden
     role="dialog"
     aria-modal="true"
     aria-labelledby="download-help-title"
     aria-describedby="download-help-message"
-    hidden
   >
     <div class="download-help-card">
       <h2 id="download-help-title">Download PDF in your browser</h2>
       <p id="download-help-message">
         WeChat cannot download PDF files generated inside this page directly.
-        Tap <strong>...</strong> at the top right, choose <strong>Open in Browser</strong>,
-        then download the PDF again.
+        Open this page in your system browser, then download the PDF again.
       </p>
       <p id="download-help-share-tip" hidden>
         You can also use the system sharing option below to save the generated PDF.
       </p>
       <div class="download-help-actions">
-        <button
-          class="button button-primary"
-          id="share-pdf-button"
-          type="button"
-          hidden
-        >
-          Share or save PDF
-        </button>
         <button class="button button-secondary" id="copy-page-link" type="button">
           Copy page link
+        </button>
+        <button class="button button-primary" id="share-pdf-button" type="button" hidden>
+          Share or save PDF
         </button>
         <button class="button button-secondary" id="close-download-help" type="button">
           Close
@@ -639,27 +530,23 @@
   <script src="./assets/vendor/jspdf.umd.min.js"></script>
   <script>
     (function () {
-      "use strict";
-
       const MANIFEST_URL = "./models/manifest.json";
       const BATCH_REGISTRY_URL = "./models/batches.json";
-      const DIAGNOSTICS_KEY = "modelPage.diagnostics.v1";
-      const MAX_DIAGNOSTICS = 20;
-      const MAX_BODY_PREVIEW = 4000;
-      const MAX_LEGACY_MATERIAL_ROWS = 4;
-      const MAX_CLASSIFICATION_MATERIALS = 6;
-      const MAX_CLASSIFICATION_LINES = 14;
+      const DIAGNOSTICS_KEY = "modelPageDiagnostics";
+      const MAX_DIAGNOSTICS = 40;
+      const MAX_BODY_PREVIEW = 240;
+      const PAGE_COUNT = 3;
 
-      const paper = document.getElementById("paper");
-      const stage = document.getElementById("paper-stage");
       const toolbarTitle = document.getElementById("toolbar-title");
       const toolbarStatus = document.getElementById("toolbar-status");
       const downloadButton = document.getElementById("download-button");
       const printButton = document.getElementById("print-button");
+      const stage = document.getElementById("paper-stage");
+      const paperStack = document.getElementById("paper-stack");
+      const papers = Array.from(document.querySelectorAll(".paper"));
       const statePanel = document.getElementById("state-panel");
       const stateTitle = document.getElementById("state-title");
       const stateMessage = document.getElementById("state-message");
-      const specs = document.getElementById("specifications");
       const downloadHelp = document.getElementById("download-help");
       const downloadHelpShareTip = document.getElementById("download-help-share-tip");
       const sharePdfButton = document.getElementById("share-pdf-button");
@@ -668,34 +555,31 @@
 
       let manifest = null;
       let modelConfig = null;
-      let batchValue = null;
+      let batchValue = "";
       let renderReady = false;
       let pendingPdfFile = null;
       let downloadHelpReturnFocus = null;
 
       function normalizeLookupKey(value) {
-        return String(value || "").trim().toLocaleLowerCase("en-US");
-      }
-
-      function isClassificationMaterials(rows) {
-        return Array.isArray(rows) && rows.some(function (row) {
-          return Array.isArray(row.classifications);
-        });
+        return String(value || "").trim().toLowerCase().replace(/\s+/g, "");
       }
 
       function serializeError(error) {
         if (!error) {
           return null;
         }
+        if (typeof error === "string") {
+          return { message: error };
+        }
         return {
-          name: error.name || "Error",
+          name: error.name || "",
           message: error.message || String(error),
           stack: error.stack || "",
+          details: error.details || null,
           cause: error.cause
             ? {
-                name: error.cause.name || "Error",
-                message: error.cause.message || String(error.cause),
-                stack: error.cause.stack || ""
+                name: error.cause.name || "",
+                message: error.cause.message || String(error.cause)
               }
             : null
         };
@@ -779,7 +663,7 @@
 
       function showError(title, message) {
         renderReady = false;
-        paper.hidden = true;
+        stage.hidden = true;
         statePanel.hidden = false;
         stateTitle.textContent = title;
         stateMessage.textContent = message;
@@ -817,299 +701,130 @@
         if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(config.id || "")) {
           throw new Error("The model ID must use lowercase letters, numbers, and hyphens.");
         }
-        if (!Array.isArray(config.specifications) || config.specifications.length === 0) {
-          throw new Error("The model configuration does not contain specifications.");
-        }
-        if (!config.contact || !config.warning || !config.brand) {
-          throw new Error("The model configuration is missing required sections.");
-        }
-        if (!config.materials || !Array.isArray(config.materials.rows)) {
-          throw new Error("The model configuration does not contain material rows.");
-        }
-        const classificationTable = isClassificationMaterials(config.materials.rows);
-        if (classificationTable) {
-          const classificationLines = config.materials.rows.reduce(function (total, row) {
-            return total + (Array.isArray(row.classifications) ? row.classifications.length : 0);
-          }, 0);
-          if (config.materials.rows.length > MAX_CLASSIFICATION_MATERIALS) {
-            throw new Error("This A4 template supports at most " + MAX_CLASSIFICATION_MATERIALS + " classified materials.");
-          }
-          if (classificationLines > MAX_CLASSIFICATION_LINES) {
-            throw new Error("This A4 template supports at most " + MAX_CLASSIFICATION_LINES + " classification lines.");
-          }
-          const invalidRow = config.materials.rows.find(function (row) {
-            return !row.chemical || !row.cas || !row.concentration || !Array.isArray(row.classifications) || row.classifications.length === 0;
-          });
-          if (invalidRow) {
-            throw new Error("Each classified material requires chemical, cas, classifications, and concentration.");
-          }
-        } else if (config.materials.rows.length > MAX_LEGACY_MATERIAL_ROWS) {
-          throw new Error("This A4 template supports at most " + MAX_LEGACY_MATERIAL_ROWS + " material rows.");
-        }
-        if (!Array.isArray(config.materials.columns) || config.materials.columns.length !== 4) {
-          throw new Error("The material table must define exactly four columns.");
-        }
-        if (typeof config.brand.logo !== "string" || !config.brand.logo.startsWith("./assets/")) {
-          throw new Error("The brand logo must use a local ./assets/ path.");
-        }
-        (config.certifications || []).forEach(function (item) {
-          if (typeof item.src !== "string" || !item.src.startsWith("./assets/")) {
-            throw new Error("Certification images must use local ./assets/ paths.");
+
+        [
+          "pageTitle",
+          "displayName",
+          "model",
+          "declarationModelNo",
+          "nominalVoltage",
+          "ratedCapacity",
+          "batterySize",
+          "batteryWeight"
+        ].forEach(function (key) {
+          if (!config[key] || !String(config[key]).trim()) {
+            throw new Error("The model configuration is missing required field: " + key);
           }
         });
-      }
 
-      function appendSpecification(label, value) {
-        const row = document.createElement("p");
-        if (label) {
-          const labelElement = document.createElement("span");
-          labelElement.textContent = label + ": ";
-          row.appendChild(labelElement);
-        }
-        row.appendChild(document.createTextNode(value == null ? "" : String(value)));
-        specs.appendChild(row);
-      }
-
-      function renderSpecifications(config) {
-        specs.replaceChildren();
-
-        config.specifications.forEach(function (item) {
-          appendSpecification(item.label, item.value);
-        });
-
-        const contact = config.contact;
-        appendSpecification("Manufacturer", contact.manufacturer);
-        appendSpecification("Address", contact.address);
-
-        const contactRow = document.createElement("p");
-        contactRow.className = "email-phone";
-        const email = document.createElement("span");
-        const phone = document.createElement("span");
-        email.textContent = "Email: " + contact.email;
-        phone.textContent = "Phone: " + contact.phone;
-        contactRow.append(email, phone);
-        specs.appendChild(contactRow);
-      }
-
-      function renderWarning(warning) {
-        setText(document.getElementById("warning-title"), warning.title);
-        const warningCopy = document.getElementById("warning-copy");
-        warningCopy.replaceChildren();
-
-        (warning.lines || []).forEach(function (line) {
-          const row = document.createElement("span");
-          row.textContent = line;
-          warningCopy.appendChild(row);
-        });
-      }
-
-      function fitWarningText() {
-        const warningCopy = document.getElementById("warning-copy");
-        const lines = Array.from(warningCopy.querySelectorAll("span"));
-        let fontSize = 10.45;
-        warningCopy.style.fontSize = fontSize + "pt";
-
-        while (
-          lines.some(function (line) {
-            return line.scrollWidth > warningCopy.clientWidth;
-          }) &&
-          fontSize > 8.4
+        if (
+          !config.materials ||
+          !Array.isArray(config.materials.columns) ||
+          config.materials.columns.length !== 3 ||
+          !Array.isArray(config.materials.rows) ||
+          config.materials.rows.length === 0
         ) {
-          fontSize -= 0.1;
-          warningCopy.style.fontSize = fontSize + "pt";
+          throw new Error("The model configuration must include a materials table.");
         }
-      }
 
-      function renderCertifications(items) {
-        const allowedKeys = new Set(["ul", "ce", "recycle", "extinguisher", "disposal"]);
-        const images = new Map(
-          Array.from(document.querySelectorAll("[data-cert-key]")).map(function (image) {
-            return [image.dataset.certKey, image];
-          })
-        );
-
-        images.forEach(function (image) {
-          image.classList.remove("is-visible");
-          image.removeAttribute("src");
-          image.alt = "";
-        });
-
-        (items || []).forEach(function (item) {
-          if (!allowedKeys.has(item.key)) {
-            return;
+        config.materials.rows.forEach(function (row, index) {
+          if (!row.chemical || !row.cas || !row.concentration) {
+            throw new Error("Materials row " + (index + 1) + " is incomplete.");
           }
-          const image = images.get(item.key);
-          image.src = item.src;
-          image.alt = item.alt || "";
-          image.classList.add("is-visible");
         });
       }
 
       function renderMaterials(materials) {
-        setText(document.getElementById("materials-heading"), materials.heading);
-
-        const table = document.getElementById("materials-table");
-        const classificationTable = isClassificationMaterials(materials.rows);
-        table.classList.toggle("is-classification-table", classificationTable);
-
         const header = document.getElementById("materials-header");
-        header.replaceChildren();
-        materials.columns.forEach(function (column) {
-          const cell = document.createElement("th");
-          cell.textContent = column;
-          header.appendChild(cell);
-        });
-
         const body = document.getElementById("materials-body");
+        header.replaceChildren();
         body.replaceChildren();
 
-        if (classificationTable) {
-          materials.rows.forEach(function (material) {
-            material.classifications.forEach(function (classification, classificationIndex) {
-              const tr = document.createElement("tr");
-
-              if (classificationIndex === 0) {
-                [
-                  { value: material.chemical, type: "chemical" },
-                  { value: material.cas, type: "cas" }
-                ].forEach(function (item) {
-                  const cell = document.createElement("td");
-                  cell.rowSpan = material.classifications.length;
-                  cell.dataset.materialCell = item.type;
-                  cell.textContent = item.value;
-                  tr.appendChild(cell);
-                });
-              }
-
-              const classificationCell = document.createElement("td");
-              classificationCell.dataset.materialCell = "classification";
-              classificationCell.textContent = classification;
-              tr.appendChild(classificationCell);
-
-              if (classificationIndex === 0) {
-                const concentrationCell = document.createElement("td");
-                concentrationCell.rowSpan = material.classifications.length;
-                concentrationCell.dataset.materialCell = "concentration";
-                concentrationCell.textContent = material.concentration;
-                tr.appendChild(concentrationCell);
-              }
-
-              body.appendChild(tr);
-            });
-          });
-        } else {
-          materials.rows.forEach(function (row) {
-            const tr = document.createElement("tr");
-            [row.components, row.cas, row.tlv, row.weight].forEach(function (value) {
-              const cell = document.createElement("td");
-              cell.textContent = value;
-              tr.appendChild(cell);
-            });
-            body.appendChild(tr);
-          });
-        }
-      }
-
-      function fitSpecifications() {
-        specs.style.fontSize = "10.45pt";
-        specs.style.lineHeight = "13.98pt";
-
-        Array.from(specs.children).forEach(function (row) {
-          row.style.marginBottom = "9.42pt";
+        materials.columns.forEach(function (column) {
+          const th = document.createElement("th");
+          th.textContent = column;
+          header.appendChild(th);
         });
 
-        if (specs.lastElementChild) {
-          specs.lastElementChild.style.marginBottom = "0";
-        }
-
-        let fontSize = 10.45;
-        let lineHeight = 13.98;
-        let gap = 9.42;
-        let attempts = 0;
-
-        while (specs.scrollHeight > specs.clientHeight + 1 && attempts < 18) {
-          fontSize = Math.max(7.8, fontSize - 0.15);
-          lineHeight = Math.max(10.4, lineHeight - 0.18);
-          gap = gap > 5.5 ? gap - 0.24 : gap;
-          specs.style.fontSize = fontSize + "pt";
-          specs.style.lineHeight = lineHeight + "pt";
-          Array.from(specs.children).forEach(function (row) {
-            row.style.lineHeight = lineHeight + "pt";
-            row.style.marginBottom = gap + "pt";
+        materials.rows.forEach(function (row) {
+          const tr = document.createElement("tr");
+          [row.chemical, row.cas, row.concentration].forEach(function (value) {
+            const td = document.createElement("td");
+            td.textContent = value;
+            tr.appendChild(td);
           });
-          if (specs.lastElementChild) {
-            specs.lastElementChild.style.marginBottom = "0";
-          }
-          attempts += 1;
-        }
+          body.appendChild(tr);
+        });
       }
 
       function renderConfig(config) {
         validateConfig(config);
 
-        setText(document.getElementById("page-title"), config.pageTitle);
-        setText(document.getElementById("model-name"), config.displayName);
-        setText(document.getElementById("batch-value"), batchValue);
-
-        const logo = document.getElementById("brand-logo");
-        logo.src = config.brand.logo;
-        logo.alt = config.brand.name || "";
-
-        renderSpecifications(config);
-        renderWarning(config.warning);
-        renderCertifications(config.certifications);
+        setText(
+          document.getElementById("field-model"),
+          "Model: " + String(config.model).trim()
+        );
+        setText(
+          document.getElementById("field-batch"),
+          "Batch: " + String(batchValue).trim()
+        );
+        setText(document.getElementById("field-voltage"), config.nominalVoltage);
+        setText(document.getElementById("field-capacity"), config.ratedCapacity);
+        setText(document.getElementById("field-size"), config.batterySize);
+        setText(document.getElementById("field-weight"), config.batteryWeight);
+        setText(
+          document.getElementById("field-declaration-model"),
+          config.declarationModelNo
+        );
         renderMaterials(config.materials);
-        fitSpecifications();
-        fitWarningText();
 
         toolbarTitle.textContent = config.pageTitle;
         document.title = config.pageTitle;
-        paper.setAttribute("aria-busy", "false");
+        paperStack.setAttribute("aria-busy", "false");
+      }
+
+      function waitForBackground(url) {
+        return new Promise(function (resolve) {
+          const image = new Image();
+          image.onload = function () {
+            resolve();
+          };
+          image.onerror = function () {
+            logDiagnostic(
+              "Asset failed to load.",
+              createDiagnosticError("Background image failed to load.", { src: url })
+            );
+            resolve();
+          };
+          image.src = url;
+        });
       }
 
       async function waitForAssets() {
         await document.fonts.ready;
-        const images = Array.from(paper.querySelectorAll("img"));
-        await Promise.all(
-          images.map(function (image) {
-            if (image.complete) {
-              if (image.naturalWidth === 0) {
-                logDiagnostic(
-                  "Asset failed to load.",
-                  createDiagnosticError("Image failed to load.", {
-                    src: image.src,
-                    alt: image.alt || ""
-                  })
-                );
-              }
-              return Promise.resolve();
-            }
-            return new Promise(function (resolve) {
-              image.addEventListener("load", resolve, { once: true });
-              image.addEventListener(
-                "error",
-                function () {
-                  logDiagnostic(
-                    "Asset failed to load.",
-                    createDiagnosticError("Image failed to load.", {
-                      src: image.src,
-                      alt: image.alt || ""
-                    })
-                  );
-                  resolve();
-                },
-                { once: true }
-              );
-            });
-          })
-        );
+        const backgroundWaits = papers.map(function (paper) {
+          const match = /url\(["']?(.*?)["']?\)/.exec(paper.style.backgroundImage || "");
+          return match ? waitForBackground(match[1]) : Promise.resolve();
+        });
+        const imageWaits = Array.from(document.querySelectorAll(".paper img")).map(function (image) {
+          if (image.complete && image.naturalWidth > 0) {
+            return Promise.resolve();
+          }
+          return waitForBackground(image.currentSrc || image.src);
+        });
+        await Promise.all(backgroundWaits.concat(imageWaits));
       }
 
       function fitPreview() {
+        if (stage.hidden) {
+          stage.style.height = "0px";
+          return;
+        }
+
         const availableWidth = stage.clientWidth;
-        const naturalWidth = paper.offsetWidth;
-        if (!naturalWidth || paper.hidden) {
-          stage.style.height = statePanel.hidden ? "0px" : "auto";
+        const naturalWidth = paperStack.offsetWidth;
+        if (!naturalWidth) {
+          stage.style.height = "0px";
           return;
         }
 
@@ -1117,9 +832,14 @@
         const scaledWidth = naturalWidth * scale;
         const horizontalOffset = Math.max(0, (availableWidth - scaledWidth) / 2);
 
-        paper.style.transform = "scale(" + scale + ")";
-        paper.style.left = horizontalOffset + "px";
-        stage.style.height = (paper.offsetHeight * scale) + "px";
+        paperStack.style.transform = "scale(" + scale + ")";
+        paperStack.style.left = horizontalOffset + "px";
+        stage.style.height = paperStack.offsetHeight * scale + "px";
+      }
+
+      function resetPaperTransform() {
+        paperStack.style.transform = "none";
+        paperStack.style.left = "0";
       }
 
       function safeFileName(value) {
@@ -1137,35 +857,30 @@
         return (
           safeFileName(modelConfig.id) +
           "_" +
-          safeFileName(modelConfig.displayName) +
-          "_" +
           safeFileName(batchValue) +
           ".pdf"
         );
       }
 
       function canSharePdf(file) {
-        try {
-          return (
+        return Boolean(
+          file &&
             typeof navigator.share === "function" &&
             typeof navigator.canShare === "function" &&
             navigator.canShare({ files: [file] })
-          );
-        } catch (error) {
-          return false;
-        }
+        );
       }
 
       function openDownloadHelp(file) {
         downloadHelpReturnFocus = document.activeElement;
         pendingPdfFile = file || null;
-        const canShare = Boolean(pendingPdfFile && canSharePdf(pendingPdfFile));
+        const canShare = canSharePdf(pendingPdfFile);
         sharePdfButton.hidden = !canShare;
         downloadHelpShareTip.hidden = !canShare;
         downloadHelp.hidden = false;
         document.body.classList.add("download-help-open");
         requestAnimationFrame(function () {
-          (canShare ? sharePdfButton : copyPageLinkButton).focus();
+          closeDownloadHelpButton.focus();
         });
       }
 
@@ -1228,6 +943,21 @@
         }
       }
 
+      async function capturePage(paper) {
+        return window.html2canvas(paper, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+          scrollX: 0,
+          scrollY: 0,
+          width: paper.offsetWidth,
+          height: paper.offsetHeight,
+          windowWidth: paper.offsetWidth,
+          windowHeight: paper.offsetHeight
+        });
+      }
+
       async function downloadPdf() {
         if (!renderReady || typeof window.html2canvas !== "function" || !window.jspdf) {
           return;
@@ -1240,8 +970,7 @@
         setStatus("Generating PDF...", false);
 
         try {
-          paper.style.transform = "none";
-          paper.style.left = "0";
+          resetPaperTransform();
           await waitForAssets();
           await new Promise(function (resolve) {
             requestAnimationFrame(function () {
@@ -1249,19 +978,6 @@
             });
           });
 
-          const canvas = await window.html2canvas(paper, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#ffffff",
-            logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            width: paper.offsetWidth,
-            height: paper.offsetHeight,
-            windowWidth: paper.offsetWidth,
-            windowHeight: paper.offsetHeight
-          });
-          const imageData = canvas.toDataURL("image/jpeg", 0.98);
           const pdf = new window.jspdf.jsPDF({
             unit: "mm",
             format: "a4",
@@ -1269,7 +985,16 @@
             compress: true
           });
 
-          pdf.addImage(imageData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+          for (let index = 0; index < papers.length; index += 1) {
+            setStatus("Generating PDF (" + (index + 1) + "/" + PAGE_COUNT + ")...", false);
+            const canvas = await capturePage(papers[index]);
+            const imageData = canvas.toDataURL("image/jpeg", 0.98);
+            if (index > 0) {
+              pdf.addPage();
+            }
+            pdf.addImage(imageData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+          }
+
           const fileName = getPdfFileName();
           if (isWeChatBrowser()) {
             let pdfFile = null;
@@ -1380,10 +1105,11 @@
               actualId: modelConfig.id
             });
           }
+
+          statePanel.hidden = true;
+          stage.hidden = false;
           renderConfig(modelConfig);
           await waitForAssets();
-          fitSpecifications();
-          fitWarningText();
           fitPreview();
           renderReady = true;
           downloadButton.disabled = false;
@@ -1424,10 +1150,7 @@
         }
       });
       window.addEventListener("resize", fitPreview);
-      window.addEventListener("beforeprint", function () {
-        paper.style.transform = "none";
-        paper.style.left = "0";
-      });
+      window.addEventListener("beforeprint", resetPaperTransform);
       window.addEventListener("afterprint", fitPreview);
 
       window.modelPageDiagnostics = {

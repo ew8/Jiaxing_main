@@ -1,17 +1,18 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Model document configuration",
+  "title": "QR model document configuration",
   "type": "object",
   "required": [
     "schemaVersion",
     "id",
     "pageTitle",
     "displayName",
-    "brand",
-    "specifications",
-    "contact",
-    "warning",
-    "certifications",
+    "model",
+    "declarationModelNo",
+    "nominalVoltage",
+    "ratedCapacity",
+    "batterySize",
+    "batteryWeight",
     "materials"
   ],
   "properties": {
@@ -30,186 +31,58 @@
       "type": "string",
       "minLength": 1
     },
-    "brand": {
-      "type": "object",
-      "required": [
-        "name",
-        "logo"
-      ],
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "logo": {
-          "type": "string",
-          "pattern": "^\\./assets/"
-        }
-      }
+    "model": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Page 1 header model value, e.g. 6FM9 (12V9AH)"
     },
-    "specifications": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "label",
-          "value"
-        ],
-        "properties": {
-          "label": {
-            "type": "string"
-          },
-          "value": {
-            "type": "string"
-          }
-        }
-      }
+    "declarationModelNo": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Page 2 Model No. value, e.g. 6-FM-9  12V9"
     },
-    "contact": {
-      "type": "object",
-      "required": [
-        "manufacturer",
-        "address",
-        "email",
-        "phone"
-      ],
-      "properties": {
-        "manufacturer": {
-          "type": "string"
-        },
-        "address": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "phone": {
-          "type": "string"
-        }
-      }
+    "nominalVoltage": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Variable part only, e.g. 12V"
     },
-    "warning": {
-      "type": "object",
-      "required": [
-        "title",
-        "lines"
-      ],
-      "properties": {
-        "title": {
-          "type": "string"
-        },
-        "lines": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
+    "ratedCapacity": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Variable part only. Suffix @20Hr, 25C stays on the template, e.g. 9Ah"
     },
-    "certifications": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "key",
-          "src",
-          "alt"
-        ],
-        "properties": {
-          "key": {
-            "enum": [
-              "ul",
-              "ce",
-              "recycle",
-              "extinguisher",
-              "disposal"
-            ]
-          },
-          "src": {
-            "type": "string",
-            "pattern": "^\\./assets/"
-          },
-          "alt": {
-            "type": "string"
-          }
-        }
-      }
+    "batterySize": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Variable part only. mm suffix stays on the template, e.g. 151x65.5x100"
+    },
+    "batteryWeight": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Variable part only. (±3%) KG suffix stays on the template, e.g. 2.62"
     },
     "materials": {
       "type": "object",
-      "required": [
-        "heading",
-        "columns",
-        "rows"
-      ],
+      "required": ["columns", "rows"],
       "properties": {
-        "heading": {
-          "type": "string"
-        },
         "columns": {
           "type": "array",
-          "minItems": 4,
-          "maxItems": 4,
-          "items": {
-            "type": "string"
-          }
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "type": "string" }
         },
         "rows": {
           "type": "array",
-          "maxItems": 6,
+          "minItems": 1,
+          "maxItems": 8,
           "items": {
-            "oneOf": [
-              {
-                "type": "object",
-                "required": [
-                  "components",
-                  "cas",
-                  "tlv",
-                  "weight"
-                ],
-                "properties": {
-                  "components": {
-                    "type": "string"
-                  },
-                  "cas": {
-                    "type": "string"
-                  },
-                  "tlv": {
-                    "type": "string"
-                  },
-                  "weight": {
-                    "type": "string"
-                  }
-                }
-              },
-              {
-                "type": "object",
-                "required": [
-                  "chemical",
-                  "cas",
-                  "classifications",
-                  "concentration"
-                ],
-                "properties": {
-                  "chemical": {
-                    "type": "string"
-                  },
-                  "cas": {
-                    "type": "string"
-                  },
-                  "classifications": {
-                    "type": "array",
-                    "minItems": 1,
-                    "maxItems": 4,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "concentration": {
-                    "type": "string"
-                  }
-                }
-              }
-            ]
+            "type": "object",
+            "required": ["chemical", "cas", "concentration"],
+            "properties": {
+              "chemical": { "type": "string" },
+              "cas": { "type": "string" },
+              "concentration": { "type": "string" }
+            }
           }
         }
       }
