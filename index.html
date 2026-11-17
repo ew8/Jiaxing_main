@@ -8,7 +8,9 @@
     :root {
       --paper-width: 595.3pt;
       --paper-height: 841.9pt;
-      --ink: #000;
+      /* Match rasterized PDF ink (anti-aliased gray-black), not pure #000. */
+      --ink: #3a3a3a;
+      --ink-strong: #2f2f2f;
       --canvas: #edf1f4;
     }
 
@@ -170,12 +172,14 @@
       z-index: 2;
       margin: 0;
       padding: 0;
-      color: #000;
+      color: var(--ink);
       white-space: nowrap;
       line-height: 1;
       pointer-events: none;
       /* Align CSS glyph baseline to the PDF text origin. */
       transform: translateY(-0.78em);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .field-model {
@@ -246,12 +250,14 @@
       z-index: 2;
       margin: 0;
       padding: 0;
-      color: #000;
+      color: var(--ink);
       font-size: 10.45pt;
       font-weight: 400;
       line-height: 14pt;
       white-space: pre-wrap;
       pointer-events: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .materials-table {
@@ -262,15 +268,17 @@
       width: 496pt;
       border-collapse: collapse;
       table-layout: fixed;
-      color: #000;
+      color: var(--ink);
       font-size: 10.45pt;
       line-height: 1.2;
       pointer-events: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .materials-table th,
     .materials-table td {
-      border: 1.1pt solid #000;
+      border: 1.1pt solid var(--ink-strong);
       padding: 6pt 4pt;
       text-align: center;
       vertical-align: middle;
@@ -436,7 +444,7 @@
           class="paper"
           id="page-1"
           data-page="1"
-          style="background-image: url('./assets/qr/page-1.png?v=5')"
+          style="background-image: url('./assets/qr/page-1.png?v=6')"
           aria-label="Page 1"
         >
           <p class="field field-model" id="field-model"></p>
@@ -536,6 +544,12 @@ comply with the following standards when managing waste batteries:</p>
       const MAX_DIAGNOSTICS = 40;
       const MAX_BODY_PREVIEW = 240;
       const PAGE_COUNT = 3;
+      // Fixed trailing text extracted from the template (kept with dynamic values).
+      const FIELD_SUFFIXES = {
+        ratedCapacity: " @20Hr，25℃",
+        batterySize: "mm",
+        batteryWeight: "(±3%) KG"
+      };
 
       const toolbarTitle = document.getElementById("toolbar-title");
       const toolbarStatus = document.getElementById("toolbar-status");
@@ -769,9 +783,18 @@ comply with the following standards when managing waste batteries:</p>
           "Batch: " + String(batchValue).trim()
         );
         setText(document.getElementById("field-voltage"), config.nominalVoltage);
-        setText(document.getElementById("field-capacity"), config.ratedCapacity);
-        setText(document.getElementById("field-size"), config.batterySize);
-        setText(document.getElementById("field-weight"), config.batteryWeight);
+        setText(
+          document.getElementById("field-capacity"),
+          String(config.ratedCapacity).trim() + FIELD_SUFFIXES.ratedCapacity
+        );
+        setText(
+          document.getElementById("field-size"),
+          String(config.batterySize).trim() + FIELD_SUFFIXES.batterySize
+        );
+        setText(
+          document.getElementById("field-weight"),
+          String(config.batteryWeight).trim() + FIELD_SUFFIXES.batteryWeight
+        );
         setText(
           document.getElementById("field-declaration-model"),
           config.declarationModelNo
