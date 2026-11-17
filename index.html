@@ -717,12 +717,71 @@ comply with the following standards when managing waste batteries:</p>
           }
         });
 
+<<<<<<< HEAD
         if (
           !config.materials ||
           !Array.isArray(config.materials.columns) ||
           config.materials.columns.length !== 3 ||
           !Array.isArray(config.materials.rows) ||
           config.materials.rows.length === 0
+=======
+      function appendSpecification(label, value) {
+        const row = document.createElement("p");
+        if (label) {
+          const labelElement = document.createElement("span");
+          labelElement.textContent = label + ": ";
+          row.appendChild(labelElement);
+        }
+        row.appendChild(document.createTextNode(value == null ? "" : String(value)));
+        specs.appendChild(row);
+      }
+
+      function renderSpecifications(config) {
+        specs.replaceChildren();
+
+        config.specifications.forEach(function (item) {
+          appendSpecification(item.label, item.value);
+        });
+
+        const contact = config.contact;
+        appendSpecification("Manufacturer", contact.manufacturer);
+        appendSpecification("Address", contact.address);
+
+        const contactRow = document.createElement("p");
+        contactRow.className = "email";
+        const email = document.createElement("span");
+        // const phone = document.createElement("span");
+        email.textContent = "Email: " + contact.email;
+        // phone.textContent = "Phone: " + contact.phone;
+        // contactRow.append(email, phone);
+        contactRow.append(email);
+        specs.appendChild(contactRow);
+      }
+
+      function renderWarning(warning) {
+        setText(document.getElementById("warning-title"), warning.title);
+        const warningCopy = document.getElementById("warning-copy");
+        warningCopy.replaceChildren();
+
+        (warning.lines || []).forEach(function (line) {
+          const row = document.createElement("span");
+          row.textContent = line;
+          warningCopy.appendChild(row);
+        });
+      }
+
+      function fitWarningText() {
+        const warningCopy = document.getElementById("warning-copy");
+        const lines = Array.from(warningCopy.querySelectorAll("span"));
+        let fontSize = 10.45;
+        warningCopy.style.fontSize = fontSize + "pt";
+
+        while (
+          lines.some(function (line) {
+            return line.scrollWidth > warningCopy.clientWidth;
+          }) &&
+          fontSize > 8.4
+>>>>>>> 32a39f192caafe2f597afdd08832f02edd80bf05
         ) {
           throw new Error("The model configuration must include a materials table.");
         }

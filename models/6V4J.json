@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "6v4-j",
+  "pageTitle": "3FM4 (6V4AH)",
+  "displayName": "3FM4 (6V4AH)",
+  "model": "3FM4 (6V4AH)",
+  "declarationModelNo": "3-FM-4  6V4J",
+  "nominalVoltage": "6V",
+  "ratedCapacity": "4Ah",
+  "batterySize": "70x48x104",
+  "batteryWeight": "0.68",
+  "materials": {
+    "columns": [
+      "Chemical Name",
+      "CAS-No.",
+      "Concentration/weight by weight(% wt)"
+    ],
+    "rows": [
+      {
+        "chemical": "Lead(Pb,PbO₂,PbSO₄)",
+        "cas": "7439-92-1",
+        "concentration": "About 70%"
+      },
+      {
+        "chemical": "Sulfuric Acid",
+        "cas": "7664-93-9",
+        "concentration": "About 20%"
+      },
+      {
+        "chemical": "Container (ABS)",
+        "cas": "9003-56-9",
+        "concentration": "About 5%"
+      },
+      {
+        "chemical": "Fiberglass Separator",
+        "cas": "65997-17-3",
+        "concentration": "About 5%"
+      }
+    ]
+  }
+}
