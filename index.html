@@ -709,13 +709,24 @@ comply with the following standards when managing waste batteries:</p>
         return lookup;
       }
 
+      function buildBatchLookup(registry) {
+        const lookup = new Map();
+        Object.entries(registry.models || {}).forEach(function (entry) {
+          const [modelId, batches] = entry;
+          lookup.set(normalizeLookupKey(modelId), batches);
+        });
+        return lookup;
+      }
+
       function validateConfig(config) {
         if (!config || config.schemaVersion !== 1) {
           throw new Error("The model configuration has an unsupported schema version.");
         }
-        if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(config.id || "")) {
+        const normalizedId = normalizeLookupKey(config.id);
+        if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(normalizedId)) {
           throw new Error("The model ID must use lowercase letters, numbers, and hyphens.");
         }
+        config.id = normalizedId;
 
         [
           "pageTitle",
@@ -1082,6 +1093,7 @@ comply with the following standards when managing waste batteries:</p>
             BATCH_REGISTRY_URL
           );
           const lookup = buildModelLookup(manifest);
+          const batchLookup = buildBatchLookup(batchRegistry);
           const requestedModel = params.get("model") || manifest.default;
           const entry = lookup.get(normalizeLookupKey(requestedModel));
           const requestedBatch = (params.get("batch") || params.get("time") || "").trim();
@@ -1096,7 +1108,7 @@ comply with the following standards when managing waste batteries:</p>
             return;
           }
 
-          const allowedBatches = batchRegistry.models && batchRegistry.models[entry.id];
+          const allowedBatches = batchLookup.get(normalizeLookupKey(entry.id));
           if (!Array.isArray(allowedBatches) || !allowedBatches.includes(requestedBatch)) {
             logDiagnostic("Model page lookup failed.", null, {
               requestedModel: requestedModel,
