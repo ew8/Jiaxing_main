@@ -8,10 +8,12 @@
     :root {
       --paper-width: 595.3pt;
       --paper-height: 841.9pt;
-      /* Match rasterized PDF ink (anti-aliased gray-black), not pure #000. */
       --ink: #3a3a3a;
       --ink-strong: #2f2f2f;
+      --line: #2f2f2f;
       --canvas: #edf1f4;
+      --page-pad-x: 36pt;
+      --page-pad-y: 34pt;
     }
 
     * {
@@ -157,150 +159,296 @@
       width: var(--paper-width);
       height: var(--paper-height);
       overflow: hidden;
-      background: #fff center / 100% 100% no-repeat;
+      padding: var(--page-pad-y) var(--page-pad-x);
+      background: #fff;
+      color: var(--ink);
       box-shadow: 0 18px 55px rgba(16, 30, 42, 0.16);
       print-color-adjust: exact;
       -webkit-print-color-adjust: exact;
+      font-size: 10.2pt;
+      line-height: 1.35;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .paper[aria-busy="true"] {
       opacity: 0.55;
     }
 
-    .field {
-      position: absolute;
-      z-index: 2;
+    .doc-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18pt;
+      margin-bottom: 14pt;
+    }
+
+    .doc-header-main {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .doc-model {
       margin: 0;
-      padding: 0;
-      color: var(--ink);
+      font-size: 14pt;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink-strong);
+    }
+
+    .doc-header-side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6pt;
+      flex: 0 0 auto;
+    }
+
+    .doc-batch {
+      margin: 0;
+      font-size: 9.2pt;
+      font-weight: 700;
+      line-height: 1.2;
       white-space: nowrap;
-      line-height: 1;
-      pointer-events: none;
-      /* Align CSS glyph baseline to the PDF text origin. */
-      transform: translateY(-0.78em);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    .field-model {
-      top: 63.12pt;
-      left: 40.55pt;
-      font-size: 14.05pt;
-      font-weight: 700;
-    }
-
-    .field-batch {
-      top: 38pt;
-      right: 28pt;
-      left: auto;
-      font-size: 9.05pt;
-      font-weight: 700;
-      text-align: right;
     }
 
     .brand-logo {
-      position: absolute;
-      top: 44pt;
-      right: 22pt;
-      z-index: 2;
-      /* Max size that fits under Batch without overlapping Model Name / body text. */
-      width: 145pt;
+      width: 210pt;
       height: auto;
-      pointer-events: none;
+      display: block;
     }
 
-    .field-voltage,
-    .field-capacity,
-    .field-size,
-    .field-weight,
-    .field-declaration-model {
-      font-size: 10.45pt;
+    .section-title {
+      margin: 0 0 8pt;
+      font-size: 13pt;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink-strong);
+    }
+
+    .section-title.tight {
+      margin-top: 12pt;
+    }
+
+    .plain {
+      margin: 0 0 7pt;
+    }
+
+    .spec-intro {
+      margin: 0 0 8pt;
+    }
+
+    .info-table,
+    .materials-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .info-table th,
+    .info-table td,
+    .materials-table th,
+    .materials-table td {
+      border: 1pt solid var(--line);
+      padding: 5pt 6pt;
+      vertical-align: middle;
       font-weight: 400;
+      text-align: left;
     }
 
-    .field-voltage {
-      top: 166.77pt;
-      left: 152.16pt;
+    .info-table th {
+      width: 24%;
+      font-weight: 700;
+      background: #fafafa;
     }
 
-    .field-capacity {
-      top: 166.89pt;
-      left: 427.44pt;
+    .info-table .label-cell {
+      font-weight: 700;
+      width: 24%;
     }
 
-    .field-size {
-      top: 187.29pt;
-      left: 152.16pt;
-    }
-
-    .field-weight {
-      top: 187.29pt;
-      left: 427.44pt;
-    }
-
-    .field-declaration-model {
-      top: 116.93pt;
-      left: 115.32pt;
-    }
-
-    .section-42 {
-      position: absolute;
-      top: 718.13pt;
-      left: 39pt;
-      right: 36pt;
-      z-index: 2;
+    .check-list {
       margin: 0;
       padding: 0;
-      color: var(--ink);
-      font-size: 10.45pt;
-      font-weight: 400;
-      line-height: 14pt;
-      white-space: pre-wrap;
-      pointer-events: none;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      list-style: none;
+    }
+
+    .check-list li {
+      margin: 0 0 2pt;
+    }
+
+    .check-list li:last-child {
+      margin-bottom: 0;
     }
 
     .materials-table {
-      position: absolute;
-      top: 533pt;
-      left: 42pt;
-      z-index: 2;
-      width: 496pt;
-      border-collapse: collapse;
-      table-layout: fixed;
-      color: var(--ink);
-      font-size: 10.45pt;
-      line-height: 1.2;
-      pointer-events: none;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      margin-top: 6pt;
     }
 
     .materials-table th,
     .materials-table td {
-      border: 1.1pt solid var(--ink-strong);
-      padding: 6pt 4pt;
       text-align: center;
-      vertical-align: middle;
-      font-weight: 400;
-      word-break: break-word;
+      padding: 6pt 4pt;
     }
 
     .materials-table th {
       font-weight: 700;
     }
 
-    .materials-table col.col-chemical {
-      width: 29.4%;
+    .warning-block {
+      display: flex;
+      align-items: flex-start;
+      gap: 8pt;
+      margin: 12pt 0 10pt;
     }
 
-    .materials-table col.col-cas {
-      width: 38.6%;
+    .warning-icon {
+      width: 16pt;
+      height: auto;
+      flex: 0 0 auto;
+      margin-top: 1pt;
     }
 
-    .materials-table col.col-concentration {
-      width: 32%;
+    .warning-copy {
+      margin: 0;
+      flex: 1 1 auto;
+    }
+
+    .warning-copy strong {
+      font-weight: 700;
+    }
+
+    .cert-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6pt;
+      margin: 10pt 0 14pt;
+      padding: 0 4pt;
+    }
+
+    .cert-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 4pt;
+      flex: 1 1 0;
+      min-width: 0;
+      text-align: center;
+    }
+
+    .cert-item img {
+      display: block;
+      width: 102pt;
+      height: 102pt;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .cert-caption {
+      margin: 0;
+      font-size: 8pt;
+      line-height: 1.15;
+    }
+
+    .arrow-list {
+      margin: 0 0 10pt;
+      padding: 0;
+      list-style: none;
+    }
+
+    .arrow-list > li {
+      position: relative;
+      margin: 0 0 6pt;
+      padding-left: 14pt;
+    }
+
+    .arrow-list > li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-weight: 700;
+    }
+
+    .u {
+      text-decoration: underline;
+    }
+
+    .subhead {
+      margin: 8pt 0 5pt;
+      font-weight: 700;
+    }
+
+    .bullet-list {
+      margin: 0 0 8pt;
+      padding-left: 14pt;
+    }
+
+    .bullet-list li {
+      margin: 0 0 4pt;
+    }
+
+    .page-flow p {
+      margin: 0 0 6pt;
+    }
+
+    #page-2 {
+      font-size: 12.28pt;
+      line-height: 1.46;
+    }
+
+    #page-2 .section-title {
+      font-size: 14.7pt;
+      margin-bottom: 10pt;
+    }
+
+    #page-2 .section-title.tight {
+      margin-top: 15pt;
+    }
+
+    #page-2 .plain {
+      margin-bottom: 9pt;
+    }
+
+    #page-2 .arrow-list > li {
+      margin-bottom: 8.5pt;
+    }
+
+    #page-2 .subhead {
+      margin: 10pt 0 6pt;
+      font-size: 12.5pt;
+    }
+
+    #page-2 .bullet-list {
+      margin-bottom: 10pt;
+    }
+
+    #page-2 .bullet-list li {
+      margin-bottom: 6pt;
+    }
+
+    #page-3 {
+      font-size: 12.7pt;
+      line-height: 1.46;
+    }
+
+    #page-3 .subhead {
+      margin: 11pt 0 6.5pt;
+      font-size: 13pt;
+    }
+
+    #page-3 .subhead:first-child {
+      margin-top: 0;
+    }
+
+    #page-3 .bullet-list {
+      margin-bottom: 11pt;
+    }
+
+    #page-3 .bullet-list li {
+      margin-bottom: 6.5pt;
     }
 
     .state-panel {
@@ -441,31 +589,98 @@
   <main class="preview">
     <div class="paper-stage" id="paper-stage" hidden>
       <div class="paper-stack" id="paper-stack" aria-busy="true">
-        <section
-          class="paper"
-          id="page-1"
-          data-page="1"
-          style="background-image: url('./assets/qr/page-1.png?v=6')"
-          aria-label="Page 1"
-        >
-          <p class="field field-model" id="field-model"></p>
-          <p class="field field-batch" id="field-batch"></p>
-          <img
-            class="brand-logo"
-            id="brand-logo"
-            src="./assets/qr/xinleina-logo.png?v=1"
-            alt="XINLEINA"
-          >
-          <p class="field field-voltage" id="field-voltage"></p>
-          <p class="field field-capacity" id="field-capacity"></p>
-          <p class="field field-size" id="field-size"></p>
-          <p class="field field-weight" id="field-weight"></p>
+        <section class="paper page-flow" id="page-1" data-page="1" aria-label="Page 1">
+          <header class="doc-header">
+            <div class="doc-header-main">
+              <p class="doc-model" id="field-model">Model:</p>
+            </div>
+            <div class="doc-header-side">
+              <p class="doc-batch" id="field-batch">Batch:</p>
+              <img class="brand-logo" src="./assets/common/xinleina-logo.jpg" alt="XINLEINA">
+            </div>
+          </header>
+
+          <h2 class="section-title">1. PRODUCT AND COMPANY IDENTIFICATION</h2>
+          <p class="spec-intro">
+            Model Name: Valve Regulated Lead-acid Battery, Rechargeable and non-spillable Battery
+          </p>
+
+          <table class="info-table" aria-label="Product identification">
+            <tbody>
+              <tr>
+                <th scope="row">Battery type</th>
+                <td colspan="3">
+                  <ul class="check-list">
+                    <li>☑ Industrial Batteries</li>
+                    <li>☐ LMT Battery</li>
+                    <li>☐ Portable batteries.</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Nominal voltage</th>
+                <td id="field-voltage"></td>
+                <th scope="row">Rated Capacity</th>
+                <td id="field-capacity"></td>
+              </tr>
+              <tr>
+                <th scope="row">Battery Size</th>
+                <td id="field-size"></td>
+                <th scope="row">Battery Weight</th>
+                <td id="field-weight"></td>
+              </tr>
+              <tr>
+                <th scope="row">Chemistry</th>
+                <td colspan="3">Lead (Pb,PbO₂,PbSO₄)</td>
+              </tr>
+              <tr>
+                <th scope="row">Manufacturer</th>
+                <td colspan="3">SHANGHAI XINLEINA STROLLER ACCESSORIES CO., LTD</td>
+              </tr>
+              <tr>
+                <th scope="row">Address</th>
+                <td colspan="3">
+                  Zhenlv Industry Area, Lüxiang Town, Jinshan District, Shanghai City, China, Post Code:201517
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Email</th>
+                <td colspan="3">sales@xlnbattery.com</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="warning-block">
+            <img class="warning-icon" src="./assets/common/warning-triangle.jpg" alt="">
+            <p class="warning-copy">
+              <strong>WARNING:</strong>
+              To reduce risk of fire or burns, do not open, do not disassemble, do not crush, do not puncture,
+              do not dispose in fire or water, do not short external contacts. Fire can be put out with a fire extinguisher.
+            </p>
+          </div>
+
+          <div class="cert-row" aria-label="Certifications">
+            <div class="cert-item">
+              <img class="cert-recycle" src="./assets/common/pb-recycle.jpg" alt="Lead recycling">
+            </div>
+            <div class="cert-item">
+              <img class="cert-extinguisher" src="./assets/common/fire-extinguisher.jpg" alt="Fire extinguisher">
+              <p class="cert-caption">Dry powder<br>fire extinguisher</p>
+            </div>
+            <div class="cert-item">
+              <img class="cert-ul" src="./assets/common/ul-mark.jpg" alt="UL">
+              <p class="cert-caption">MH48334</p>
+            </div>
+            <div class="cert-item">
+              <img class="cert-ce" src="./assets/common/ce-mark.jpg" alt="CE">
+            </div>
+            <div class="cert-item">
+              <img class="cert-disposal" src="./assets/common/pb-disposal.jpg" alt="Do not dispose in household waste">
+            </div>
+          </div>
+
+          <h2 class="section-title">2. Critical Raw Materials</h2>
           <table class="materials-table" id="materials-table" aria-label="Critical Raw Materials">
-            <colgroup>
-              <col class="col-chemical">
-              <col class="col-cas">
-              <col class="col-concentration">
-            </colgroup>
             <thead>
               <tr id="materials-header"></tr>
             </thead>
@@ -473,27 +688,140 @@
           </table>
         </section>
 
-        <section
-          class="paper"
-          id="page-2"
-          data-page="2"
-          style="background-image: url('./assets/qr/page-2.png?v=3')"
-          aria-label="Page 2"
-        >
-          <p class="field field-declaration-model" id="field-declaration-model"></p>
-          <p class="section-42" id="section-42">4.2 Standardized Management (Full-Process Compliance Control):
-In accordance with international standards and the "Technical Specification for Pollution Control in the Treatment of Waste
-Lead-Acid Batteries" (HJ 519-2020) issued by the Ministry of Ecology and Environment, industrial enterprises must strictly
-comply with the following standards when managing waste batteries:</p>
+        <section class="paper page-flow" id="page-2" data-page="2" aria-label="Page 2">
+          <h2 class="section-title">3. EU Conformity Declaration</h2>
+          <p class="plain">We, Certify and declare under our sole responsibility that the following apparatus:</p>
+          <ul class="arrow-list">
+            <li>
+              Model No.:
+              <span class="u" id="field-declaration-model"></span>
+            </li>
+            <li>
+              Name of the manufacturer:
+              <span class="u">SHANGHAI XINLEINA STROLLER ACCESSORIES CO., LTD.</span>
+            </li>
+            <li>
+              Address of the manufacturer:
+              <span class="u">Zhenlv Industry Area, Lüxiang Town, Jinshan District, Shanghai City, China</span>
+            </li>
+            <li>This declaration of conformity is issued under the sole responsibility of the manufacturer.</li>
+            <li>
+              Object of the declaration:
+              <div class="u" style="margin-top: 2pt;">
+                Valve Regulated Lead-acid Battery (Rechargeable and non-spillable Battery, Industrial Batteries)
+              </div>
+            </li>
+            <li>
+              The object of the declaration described above is in conformity with the relevant Union harmonisation legislation
+              directive and Other Union harmonisation legislation where applicable:
+              <div class="u" style="margin-top: 2pt;">EU Battery Regulation 2023/1542</div>
+            </li>
+            <li>
+              Division performed Tests for EMC Directive (2014/30/EU) issued by the European Commission issued the
+              certificates number:
+              <span class="u">UTRCN-26237SXS01</span>.
+            </li>
+          </ul>
+
+          <h2 class="section-title tight">4. Prevention and Management of Waste Lead-Acid Batteries</h2>
+          <p class="subhead">4.1 Prevention Mechanisms (Full Life-Cycle Source Control)</p>
+          <p class="subhead">①. Source Reduction and Service Life Extension:</p>
+          <ul class="bullet-list">
+            <li>
+              Optimize routine maintenance: Perform regular balanced charging and internal resistance testing of battery packs to
+              prevent premature failure of the entire battery pack due to degradation of individual cells.
+            </li>
+            <li>
+              Environmental temperature control: Industrial batteries are temperature-sensitive. Ensure that battery rooms or machine
+              rooms provide adequate ventilation and constant temperature conditions (typically maintained at 20°C–25°C) to avoid
+              accelerated battery aging caused by high temperatures.
+            </li>
+          </ul>
+          <p class="subhead">②. Green Procurement Principles:</p>
+          <ul class="bullet-list">
+            <li>
+              Prioritize procurement of products that hold green certifications, are easy to recycle, and contain low levels of hazardous
+              impurities such as lead and cadmium.
+            </li>
+            <li>
+              Promote the "trade-in" mechanism by explicitly requiring manufacturers or suppliers in procurement contracts to fulfill
+              reverse logistics recycling obligations.
+            </li>
+          </ul>
+
+          <p class="subhead">4.2 Standardized Management (Full-Process Compliance Control):</p>
+          <p class="plain">
+            In accordance with international standards and the "Technical Specification for Pollution Control in the Treatment of Waste
+            Lead-Acid Batteries" (HJ 519-2020) issued by the Ministry of Ecology and Environment, industrial enterprises must strictly
+            comply with the following standards when managing waste batteries:
+          </p>
         </section>
 
-        <section
-          class="paper"
-          id="page-3"
-          data-page="3"
-          style="background-image: url('./assets/qr/page-3.png?v=2')"
-          aria-label="Page 3"
-        ></section>
+        <section class="paper page-flow" id="page-3" data-page="3" aria-label="Page 3">
+          <p class="subhead">①. Standardized Storage in Designated Areas within the Plant and Proper Labeling:</p>
+          <ul class="bullet-list">
+            <li>
+              A dedicated hazardous waste storage room (or dedicated storage facilities) must be established, and hazardous waste
+              identification labels must be prominently displayed.
+            </li>
+            <li>
+              Ground Sealing and Containment: The storage floor must be constructed from impermeable, acid-resistant, and
+              corrosion-resistant materials (e.g., acid-resistant epoxy flooring), and dedicated wastewater/acid containment troughs and
+              collection basins must be installed to strictly prevent leakage that could contaminate soil and groundwater.
+            </li>
+            <li>
+              Structural Integrity Protection: Waste batteries must remain structurally intact. Unauthorized disassembly, crushing, or
+              dumping of waste acid solutions within the plant premises is strictly prohibited.
+            </li>
+          </ul>
+
+          <p class="subhead">②. Compliant and Safe Transportation:</p>
+          <ul class="bullet-list">
+            <li>
+              Leak-proof Packaging: Batteries must be placed upright (with the top facing upward) during transport, using acid-resistant
+              pallets and rainproof canvas to prevent overflow of waste acid solutions due to road vibrations.
+            </li>
+            <li>
+              Qualification Verification: Transportation must be entrusted to vehicles and personnel possessing hazardous goods
+              transport qualifications; such vehicles must be registered with hazardous goods markings.
+            </li>
+          </ul>
+
+          <p class="subhead">③. Legally Valid Manifest Handling:</p>
+          <ul class="bullet-list">
+            <li>
+              Illegal Resale Prohibited: The sale of waste industrial batteries to unqualified "informal operators" or individual vendors is
+              strictly prohibited.
+            </li>
+            <li>
+              Targeted Transfer: Waste batteries must be transferred exclusively to recycled lead enterprises that hold a hazardous
+              waste operation license (with "waste lead-acid batteries" included in their scope of business) or to designated collection
+              points.
+            </li>
+            <li>
+              Transfer Manifest System: In accordance with applicable laws and regulations, accurately complete electronic hazardous
+              waste transfer manifests on the National Solid Waste Management Information System (or the local environmental
+              protection authority platform), ensuring a clear traceability of the flow of each batch of waste.
+            </li>
+          </ul>
+
+          <p class="subhead">4.3 Occupational Health and Emergency Prevention</p>
+          <ul class="bullet-list">
+            <li>
+              Provision of Emergency Supplies: The storage area must be equipped with sufficient adsorbents (e.g., sand or soil) and
+              alkaline neutralizing agents (e.g., quicklime, sodium bicarbonate solution) to enable rapid neutralization in the event of an
+              acid spill.
+            </li>
+            <li>
+              Personal Protective Equipment (PPE) Requirements: Employees who handle or transport used batteries must wear
+              acid-resistant gloves, protective goggles, and acid-resistant work shoes.
+            </li>
+            <li>
+              Fire Safety: The used battery disposal area must be strictly prohibited from open flames and must be equipped with
+              firefighting equipment suitable for both electrical and chemical fires.
+            </li>
+          </ul>
+        </section>
       </div>
     </div>
 
@@ -541,11 +869,10 @@ comply with the following standards when managing waste batteries:</p>
     (function () {
       const MANIFEST_URL = "./models/manifest.json";
       const BATCH_REGISTRY_URL = "./models/batches.json";
-      const DIAGNOSTICS_KEY = "modelPageDiagnostics";
+      const DIAGNOSTICS_KEY = "modelPageDiagnosticsText";
       const MAX_DIAGNOSTICS = 40;
       const MAX_BODY_PREVIEW = 240;
       const PAGE_COUNT = 3;
-      // Fixed trailing text extracted from the template (kept with dynamic values).
       const FIELD_SUFFIXES = {
         ratedCapacity: " @20Hr，25℃",
         batterySize: "mm",
@@ -605,7 +932,7 @@ comply with the following standards when managing waste batteries:</p>
           const entries = JSON.parse(localStorage.getItem(DIAGNOSTICS_KEY) || "[]");
           return Array.isArray(entries) ? entries : [];
         } catch (error) {
-          console.error("[ModelPage] Unable to read diagnostic logs.", error);
+          console.error("[ModelPageText] Unable to read diagnostic logs.", error);
           return [];
         }
       }
@@ -620,7 +947,7 @@ comply with the following standards when managing waste batteries:</p>
           details: details || (error && error.details) || null
         };
 
-        console.error("[ModelPage]", context, entry, error || "");
+        console.error("[ModelPageText]", context, entry, error || "");
 
         try {
           const entries = getDiagnostics();
@@ -630,7 +957,7 @@ comply with the following standards when managing waste batteries:</p>
             JSON.stringify(entries.slice(-MAX_DIAGNOSTICS))
           );
         } catch (storageError) {
-          console.error("[ModelPage] Unable to persist diagnostic log.", storageError);
+          console.error("[ModelPageText] Unable to persist diagnostic log.", storageError);
         }
 
         return entry;
@@ -818,7 +1145,7 @@ comply with the following standards when managing waste batteries:</p>
         paperStack.setAttribute("aria-busy", "false");
       }
 
-      function waitForBackground(url) {
+      function waitForImage(url) {
         return new Promise(function (resolve) {
           const image = new Image();
           image.onload = function () {
@@ -827,7 +1154,7 @@ comply with the following standards when managing waste batteries:</p>
           image.onerror = function () {
             logDiagnostic(
               "Asset failed to load.",
-              createDiagnosticError("Background image failed to load.", { src: url })
+              createDiagnosticError("Image failed to load.", { src: url })
             );
             resolve();
           };
@@ -837,17 +1164,14 @@ comply with the following standards when managing waste batteries:</p>
 
       async function waitForAssets() {
         await document.fonts.ready;
-        const backgroundWaits = papers.map(function (paper) {
-          const match = /url\(["']?(.*?)["']?\)/.exec(paper.style.backgroundImage || "");
-          return match ? waitForBackground(match[1]) : Promise.resolve();
-        });
-        const imageWaits = Array.from(document.querySelectorAll(".paper img")).map(function (image) {
-          if (image.complete && image.naturalWidth > 0) {
-            return Promise.resolve();
-          }
-          return waitForBackground(image.currentSrc || image.src);
-        });
-        await Promise.all(backgroundWaits.concat(imageWaits));
+        await Promise.all(
+          Array.from(document.querySelectorAll(".paper img")).map(function (image) {
+            if (image.complete && image.naturalWidth > 0) {
+              return Promise.resolve();
+            }
+            return waitForImage(image.currentSrc || image.src);
+          })
+        );
       }
 
       function fitPreview() {
@@ -1195,7 +1519,7 @@ comply with the following standards when managing waste batteries:</p>
           try {
             localStorage.removeItem(DIAGNOSTICS_KEY);
           } catch (error) {
-            console.error("[ModelPage] Unable to clear diagnostic logs.", error);
+            console.error("[ModelPageText] Unable to clear diagnostic logs.", error);
           }
         }
       };

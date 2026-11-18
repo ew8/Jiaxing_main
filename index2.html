@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Document Generator</title>
+  <style>
+    :root {
+      --paper-width: 595.3pt;
+      --paper-height: 841.9pt;
+      --ink: #3a3a3a;
+      --ink-strong: #2f2f2f;
+      --line: #2f2f2f;
+      --canvas: #edf1f4;
+      --page-pad-x: 36pt;
+      --page-pad-y: 34pt;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent 220px),
+        var(--canvas);
+      color: var(--ink);
+      font-family: Calibri, "Segoe UI", Arial, sans-serif;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      padding: 14px 18px;
+      background: rgba(237, 241, 244, 0.92);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(14px);
+    }
+
+    .toolbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      width: min(100%, 1040px);
+    }
+
+    .toolbar-heading {
+      min-width: 0;
+    }
+
+    .toolbar-title {
+      overflow: hidden;
+      color: #26313c;
+      font-size: 14px;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .toolbar-status {
+      min-height: 16px;
+      margin-top: 2px;
+      overflow: hidden;
+      color: #64748b;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .toolbar-status.is-error {
+      color: #b42318;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+    }
+
+    .button:active {
+      transform: translateY(1px);
+    }
+
+    .button-secondary {
+      background: #fff;
+      color: #26313c;
+      border-color: #cfd8e0;
+    }
+
+    .button-secondary:hover {
+      border-color: #98a8b7;
+    }
+
+    .button-primary {
+      background: #176b55;
+      color: #fff;
+    }
+
+    .button-primary:hover {
+      background: #125844;
+    }
+
+    .button:disabled {
+      cursor: wait;
+      opacity: 0.55;
+    }
+
+    .preview {
+      padding: 30px 16px 56px;
+    }
+
+    .paper-stage {
+      position: relative;
+      width: min(100%, 990px);
+      margin: 0 auto;
+    }
+
+    .paper-stack {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      transform-origin: top left;
+    }
+
+    .paper {
+      position: relative;
+      width: var(--paper-width);
+      height: var(--paper-height);
+      overflow: hidden;
+      padding: var(--page-pad-y) var(--page-pad-x);
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 18px 55px rgba(16, 30, 42, 0.16);
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+      font-size: 10.2pt;
+      line-height: 1.35;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .paper[aria-busy="true"] {
+      opacity: 0.55;
+    }
+
+    .doc-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18pt;
+      margin-bottom: 14pt;
+    }
+
+    .doc-header-main {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .doc-model {
+      margin: 0;
+      font-size: 14pt;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink-strong);
+    }
+
+    .doc-header-side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6pt;
+      flex: 0 0 auto;
+    }
+
+    .doc-batch {
+      margin: 0;
+      font-size: 9.2pt;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .brand-logo {
+      width: 210pt;
+      height: auto;
+      display: block;
+    }
+
+    .section-title {
+      margin: 0 0 8pt;
+      font-size: 13pt;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink-strong);
+    }
+
+    .section-title.tight {
+      margin-top: 12pt;
+    }
+
+    .plain {
+      margin: 0 0 7pt;
+    }
+
+    .spec-intro {
+      margin: 0 0 8pt;
+    }
+
+    .info-table,
+    .materials-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .info-table th,
+    .info-table td,
+    .materials-table th,
+    .materials-table td {
+      border: 1pt solid var(--line);
+      padding: 5pt 6pt;
+      vertical-align: middle;
+      font-weight: 400;
+      text-align: left;
+    }
+
+    .info-table th {
+      width: 24%;
+      font-weight: 700;
+      background: #fafafa;
+    }
+
+    .info-table .label-cell {
+      font-weight: 700;
+      width: 24%;
+    }
+
+    .check-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .check-list li {
+      margin: 0 0 2pt;
+    }
+
+    .check-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .materials-table {
+      margin-top: 6pt;
+    }
+
+    .materials-table th,
+    .materials-table td {
+      text-align: center;
+      padding: 6pt 4pt;
+    }
+
+    .materials-table th {
+      font-weight: 700;
+    }
+
+    .warning-block {
+      display: flex;
+      align-items: flex-start;
+      gap: 8pt;
+      margin: 12pt 0 10pt;
+    }
+
+    .warning-icon {
+      width: 16pt;
+      height: auto;
+      flex: 0 0 auto;
+      margin-top: 1pt;
+    }
+
+    .warning-copy {
+      margin: 0;
+      flex: 1 1 auto;
+    }
+
+    .warning-copy strong {
+      font-weight: 700;
+    }
+
+    .cert-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6pt;
+      margin: 10pt 0 14pt;
+      padding: 0 4pt;
+    }
+
+    .cert-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 4pt;
+      flex: 1 1 0;
+      min-width: 0;
+      text-align: center;
+    }
+
+    .cert-item img {
+      display: block;
+      width: 102pt;
+      height: 102pt;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .cert-caption {
+      margin: 0;
+      font-size: 8pt;
+      line-height: 1.15;
+    }
+
+    .arrow-list {
+      margin: 0 0 10pt;
+      padding: 0;
+      list-style: none;
+    }
+
+    .arrow-list > li {
+      position: relative;
+      margin: 0 0 6pt;
+      padding-left: 14pt;
+    }
+
+    .arrow-list > li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-weight: 700;
+    }
+
+    .u {
+      text-decoration: underline;
+    }
+
+    .subhead {
+      margin: 8pt 0 5pt;
+      font-weight: 700;
+    }
+
+    .bullet-list {
+      margin: 0 0 8pt;
+      padding-left: 14pt;
+    }
+
+    .bullet-list li {
+      margin: 0 0 4pt;
+    }
+
+    .page-flow p {
+      margin: 0 0 6pt;
+    }
+
+    #page-2 {
+      font-size: 12.28pt;
+      line-height: 1.46;
+    }
+
+    #page-2 .section-title {
+      font-size: 14.7pt;
+      margin-bottom: 10pt;
+    }
+
+    #page-2 .section-title.tight {
+      margin-top: 15pt;
+    }
+
+    #page-2 .plain {
+      margin-bottom: 9pt;
+    }
+
+    #page-2 .arrow-list > li {
+      margin-bottom: 8.5pt;
+    }
+
+    #page-2 .subhead {
+      margin: 10pt 0 6pt;
+      font-size: 12.5pt;
+    }
+
+    #page-2 .bullet-list {
+      margin-bottom: 10pt;
+    }
+
+    #page-2 .bullet-list li {
+      margin-bottom: 6pt;
+    }
+
+    #page-3 {
+      font-size: 12.7pt;
+      line-height: 1.46;
+    }
+
+    #page-3 .subhead {
+      margin: 11pt 0 6.5pt;
+      font-size: 13pt;
+    }
+
+    #page-3 .subhead:first-child {
+      margin-top: 0;
+    }
+
+    #page-3 .bullet-list {
+      margin-bottom: 11pt;
+    }
+
+    #page-3 .bullet-list li {
+      margin-bottom: 6.5pt;
+    }
+
+    .state-panel {
+      width: min(100%, 640px);
+      margin: 48px auto 0;
+      padding: 28px 24px;
+      border: 1px solid #d7dee6;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 10px 30px rgba(16, 30, 42, 0.08);
+      text-align: center;
+    }
+
+    .state-panel[hidden],
+    .paper-stage[hidden] {
+      display: none !important;
+    }
+
+    .state-panel h1 {
+      margin: 0 0 8px;
+      color: #243040;
+      font-size: 22px;
+    }
+
+    .state-panel p {
+      margin: 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .download-help {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(15, 23, 42, 0.45);
+    }
+
+    .download-help[hidden] {
+      display: none !important;
+    }
+
+    .download-help-card p[hidden],
+    .download-help-actions .button[hidden] {
+      display: none !important;
+    }
+
+    .download-help-card {
+      width: min(100%, 420px);
+      padding: 22px 20px;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.24);
+    }
+
+    .download-help-card h2 {
+      margin: 0 0 8px;
+      color: #243040;
+      font-size: 18px;
+    }
+
+    .download-help-card p {
+      margin: 0 0 16px;
+      color: #526274;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .download-help-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .download-help-actions .button {
+      flex: 1 1 auto;
+    }
+
+    body.download-help-open {
+      overflow: hidden;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .toolbar,
+      .download-help,
+      .state-panel {
+        display: none !important;
+      }
+
+      .preview {
+        padding: 0;
+      }
+
+      .paper-stage,
+      .paper-stack {
+        width: auto !important;
+        height: auto !important;
+        position: static !important;
+        transform: none !important;
+        left: 0 !important;
+        gap: 0;
+      }
+
+      .paper {
+        box-shadow: none;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .paper:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <div class="toolbar-heading">
+        <div class="toolbar-title" id="toolbar-title">Model Document Generator</div>
+        <div class="toolbar-status" id="toolbar-status">Loading configuration...</div>
+      </div>
+      <div class="toolbar-actions">
+        <button class="button button-secondary" id="print-button" type="button" disabled>Print</button>
+        <button class="button button-primary" id="download-button" type="button" disabled>Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="preview">
+    <div class="paper-stage" id="paper-stage" hidden>
+      <div class="paper-stack" id="paper-stack" aria-busy="true">
+        <section class="paper page-flow" id="page-1" data-page="1" aria-label="Page 1">
+          <header class="doc-header">
+            <div class="doc-header-main">
+              <p class="doc-model" id="field-model">Model:</p>
+            </div>
+            <div class="doc-header-side">
+              <p class="doc-batch" id="field-batch">Batch:</p>
+              <img class="brand-logo" src="./assets/common/xinleina-logo.jpg" alt="XINLEINA">
+            </div>
+          </header>
+
+          <h2 class="section-title">1. PRODUCT AND COMPANY IDENTIFICATION</h2>
+          <p class="spec-intro">
+            Model Name: Valve Regulated Lead-acid Battery, Rechargeable and non-spillable Battery
+          </p>
+
+          <table class="info-table" aria-label="Product identification">
+            <tbody>
+              <tr>
+                <th scope="row">Battery type</th>
+                <td colspan="3">
+                  <ul class="check-list">
+                    <li>☑ Industrial Batteries</li>
+                    <li>☐ LMT Battery</li>
+                    <li>☐ Portable batteries.</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Nominal voltage</th>
+                <td id="field-voltage"></td>
+                <th scope="row">Rated Capacity</th>
+                <td id="field-capacity"></td>
+              </tr>
+              <tr>
+                <th scope="row">Battery Size</th>
+                <td id="field-size"></td>
+                <th scope="row">Battery Weight</th>
+                <td id="field-weight"></td>
+              </tr>
+              <tr>
+                <th scope="row">Chemistry</th>
+                <td colspan="3">Lead (Pb,PbO₂,PbSO₄)</td>
+              </tr>
+              <tr>
+                <th scope="row">Manufacturer</th>
+                <td colspan="3">SHANGHAI XINLEINA STROLLER ACCESSORIES CO., LTD</td>
+              </tr>
+              <tr>
+                <th scope="row">Address</th>
+                <td colspan="3">
+                  Zhenlv Industry Area, Lüxiang Town, Jinshan District, Shanghai City, China, Post Code:201517
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Email</th>
+                <td colspan="3">sales@xlnbattery.com</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="warning-block">
+            <img class="warning-icon" src="./assets/common/warning-triangle.jpg" alt="">
+            <p class="warning-copy">
+              <strong>WARNING:</strong>
+              To reduce risk of fire or burns, do not open, do not disassemble, do not crush, do not puncture,
+              do not dispose in fire or water, do not short external contacts. Fire can be put out with a fire extinguisher.
+            </p>
+          </div>
+
+          <div class="cert-row" aria-label="Certifications">
+            <div class="cert-item">
+              <img class="cert-recycle" src="./assets/common/pb-recycle.jpg" alt="Lead recycling">
+            </div>
+            <div class="cert-item">
+              <img class="cert-extinguisher" src="./assets/common/fire-extinguisher.jpg" alt="Fire extinguisher">
+              <p class="cert-caption">Dry powder<br>fire extinguisher</p>
+            </div>
+            <div class="cert-item">
+              <img class="cert-ul" src="./assets/common/ul-mark.jpg" alt="UL">
+              <p class="cert-caption">MH48334</p>
+            </div>
+            <div class="cert-item">
+              <img class="cert-ce" src="./assets/common/ce-mark.jpg" alt="CE">
+            </div>
+            <div class="cert-item">
+              <img class="cert-disposal" src="./assets/common/pb-disposal.jpg" alt="Do not dispose in household waste">
+            </div>
+          </div>
+
+          <h2 class="section-title">2. Critical Raw Materials</h2>
+          <table class="materials-table" id="materials-table" aria-label="Critical Raw Materials">
+            <thead>
+              <tr id="materials-header"></tr>
+            </thead>
+            <tbody id="materials-body"></tbody>
+          </table>
+        </section>
+
+        <section class="paper page-flow" id="page-2" data-page="2" aria-label="Page 2">
+          <h2 class="section-title">3. EU Conformity Declaration</h2>
+          <p class="plain">We, Certify and declare under our sole responsibility that the following apparatus:</p>
+          <ul class="arrow-list">
+            <li>
+              Model No.:
+              <span class="u" id="field-declaration-model"></span>
+            </li>
+            <li>
+              Name of the manufacturer:
+              <span class="u">SHANGHAI XINLEINA STROLLER ACCESSORIES CO., LTD.</span>
+            </li>
+            <li>
+              Address of the manufacturer:
+              <span class="u">Zhenlv Industry Area, Lüxiang Town, Jinshan District, Shanghai City, China</span>
+            </li>
+            <li>This declaration of conformity is issued under the sole responsibility of the manufacturer.</li>
+            <li>
+              Object of the declaration:
+              <div class="u" style="margin-top: 2pt;">
+                Valve Regulated Lead-acid Battery (Rechargeable and non-spillable Battery, Industrial Batteries)
+              </div>
+            </li>
+            <li>
+              The object of the declaration described above is in conformity with the relevant Union harmonisation legislation
+              directive and Other Union harmonisation legislation where applicable:
+              <div class="u" style="margin-top: 2pt;">EU Battery Regulation 2023/1542</div>
+            </li>
+            <li>
+              Division performed Tests for EMC Directive (2014/30/EU) issued by the European Commission issued the
+              certificates number:
+              <span class="u">UTRCN-26237SXS01</span>.
+            </li>
+          </ul>
+
+          <h2 class="section-title tight">4. Prevention and Management of Waste Lead-Acid Batteries</h2>
+          <p class="subhead">4.1 Prevention Mechanisms (Full Life-Cycle Source Control)</p>
+          <p class="subhead">①. Source Reduction and Service Life Extension:</p>
+          <ul class="bullet-list">
+            <li>
+              Optimize routine maintenance: Perform regular balanced charging and internal resistance testing of battery packs to
+              prevent premature failure of the entire battery pack due to degradation of individual cells.
+            </li>
+            <li>
+              Environmental temperature control: Industrial batteries are temperature-sensitive. Ensure that battery rooms or machine
+              rooms provide adequate ventilation and constant temperature conditions (typically maintained at 20°C–25°C) to avoid
+              accelerated battery aging caused by high temperatures.
+            </li>
+          </ul>
+          <p class="subhead">②. Green Procurement Principles:</p>
+          <ul class="bullet-list">
+            <li>
+              Prioritize procurement of products that hold green certifications, are easy to recycle, and contain low levels of hazardous
+              impurities such as lead and cadmium.
+            </li>
+            <li>
+              Promote the "trade-in" mechanism by explicitly requiring manufacturers or suppliers in procurement contracts to fulfill
+              reverse logistics recycling obligations.
+            </li>
+          </ul>
+
+          <p class="subhead">4.2 Standardized Management (Full-Process Compliance Control):</p>
+          <p class="plain">
+            In accordance with international standards and the "Technical Specification for Pollution Control in the Treatment of Waste
+            Lead-Acid Batteries" (HJ 519-2020) issued by the Ministry of Ecology and Environment, industrial enterprises must strictly
+            comply with the following standards when managing waste batteries:
+          </p>
+        </section>
+
+        <section class="paper page-flow" id="page-3" data-page="3" aria-label="Page 3">
+          <p class="subhead">①. Standardized Storage in Designated Areas within the Plant and Proper Labeling:</p>
+          <ul class="bullet-list">
+            <li>
+              A dedicated hazardous waste storage room (or dedicated storage facilities) must be established, and hazardous waste
+              identification labels must be prominently displayed.
+            </li>
+            <li>
+              Ground Sealing and Containment: The storage floor must be constructed from impermeable, acid-resistant, and
+              corrosion-resistant materials (e.g., acid-resistant epoxy flooring), and dedicated wastewater/acid containment troughs and
+              collection basins must be installed to strictly prevent leakage that could contaminate soil and groundwater.
+            </li>
+            <li>
+              Structural Integrity Protection: Waste batteries must remain structurally intact. Unauthorized disassembly, crushing, or
+              dumping of waste acid solutions within the plant premises is strictly prohibited.
+            </li>
+          </ul>
+
+          <p class="subhead">②. Compliant and Safe Transportation:</p>
+          <ul class="bullet-list">
+            <li>
+              Leak-proof Packaging: Batteries must be placed upright (with the top facing upward) during transport, using acid-resistant
+              pallets and rainproof canvas to prevent overflow of waste acid solutions due to road vibrations.
+            </li>
+            <li>
+              Qualification Verification: Transportation must be entrusted to vehicles and personnel possessing hazardous goods
+              transport qualifications; such vehicles must be registered with hazardous goods markings.
+            </li>
+          </ul>
+
+          <p class="subhead">③. Legally Valid Manifest Handling:</p>
+          <ul class="bullet-list">
+            <li>
+              Illegal Resale Prohibited: The sale of waste industrial batteries to unqualified "informal operators" or individual vendors is
+              strictly prohibited.
+            </li>
+            <li>
+              Targeted Transfer: Waste batteries must be transferred exclusively to recycled lead enterprises that hold a hazardous
+              waste operation license (with "waste lead-acid batteries" included in their scope of business) or to designated collection
+              points.
+            </li>
+            <li>
+              Transfer Manifest System: In accordance with applicable laws and regulations, accurately complete electronic hazardous
+              waste transfer manifests on the National Solid Waste Management Information System (or the local environmental
+              protection authority platform), ensuring a clear traceability of the flow of each batch of waste.
+            </li>
+          </ul>
+
+          <p class="subhead">4.3 Occupational Health and Emergency Prevention</p>
+          <ul class="bullet-list">
+            <li>
+              Provision of Emergency Supplies: The storage area must be equipped with sufficient adsorbents (e.g., sand or soil) and
+              alkaline neutralizing agents (e.g., quicklime, sodium bicarbonate solution) to enable rapid neutralization in the event of an
+              acid spill.
+            </li>
+            <li>
+              Personal Protective Equipment (PPE) Requirements: Employees who handle or transport used batteries must wear
+              acid-resistant gloves, protective goggles, and acid-resistant work shoes.
+            </li>
+            <li>
+              Fire Safety: The used battery disposal area must be strictly prohibited from open flames and must be equipped with
+              firefighting equipment suitable for both electrical and chemical fires.
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="state-panel" id="state-panel" hidden>
+      <h1 id="state-title">Unable to load model</h1>
+      <p id="state-message">The page could not be loaded. Please check the link and try again.</p>
+    </div>
+  </main>
+
+  <div
+    class="download-help"
+    id="download-help"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="download-help-title"
+    aria-describedby="download-help-message"
+  >
+    <div class="download-help-card">
+      <h2 id="download-help-title">Download PDF in your browser</h2>
+      <p id="download-help-message">
+        WeChat cannot download PDF files generated inside this page directly.
+        Open this page in your system browser, then download the PDF again.
+      </p>
+      <p id="download-help-share-tip" hidden>
+        You can also use the system sharing option below to save the generated PDF.
+      </p>
+      <div class="download-help-actions">
+        <button class="button button-secondary" id="copy-page-link" type="button">
+          Copy page link
+        </button>
+        <button class="button button-primary" id="share-pdf-button" type="button" hidden>
+          Share or save PDF
+        </button>
+        <button class="button button-secondary" id="close-download-help" type="button">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./assets/vendor/html2canvas.min.js"></script>
+  <script src="./assets/vendor/jspdf.umd.min.js"></script>
+  <script>
+    (function () {
+      const MANIFEST_URL = "./models/manifest.json";
+      const BATCH_REGISTRY_URL = "./models/batches.json";
+      const DIAGNOSTICS_KEY = "modelPageDiagnosticsText";
+      const MAX_DIAGNOSTICS = 40;
+      const MAX_BODY_PREVIEW = 240;
+      const PAGE_COUNT = 3;
+      const FIELD_SUFFIXES = {
+        ratedCapacity: " @20Hr，25℃",
+        batterySize: "mm",
+        batteryWeight: "(±3%) KG"
+      };
+
+      const toolbarTitle = document.getElementById("toolbar-title");
+      const toolbarStatus = document.getElementById("toolbar-status");
+      const downloadButton = document.getElementById("download-button");
+      const printButton = document.getElementById("print-button");
+      const stage = document.getElementById("paper-stage");
+      const paperStack = document.getElementById("paper-stack");
+      const papers = Array.from(document.querySelectorAll(".paper"));
+      const statePanel = document.getElementById("state-panel");
+      const stateTitle = document.getElementById("state-title");
+      const stateMessage = document.getElementById("state-message");
+      const downloadHelp = document.getElementById("download-help");
+      const downloadHelpShareTip = document.getElementById("download-help-share-tip");
+      const sharePdfButton = document.getElementById("share-pdf-button");
+      const copyPageLinkButton = document.getElementById("copy-page-link");
+      const closeDownloadHelpButton = document.getElementById("close-download-help");
+
+      let manifest = null;
+      let modelConfig = null;
+      let batchValue = "";
+      let renderReady = false;
+      let pendingPdfFile = null;
+      let downloadHelpReturnFocus = null;
+
+      function normalizeLookupKey(value) {
+        return String(value || "").trim().toLowerCase().replace(/\s+/g, "");
+      }
+
+      function serializeError(error) {
+        if (!error) {
+          return null;
+        }
+        if (typeof error === "string") {
+          return { message: error };
+        }
+        return {
+          name: error.name || "",
+          message: error.message || String(error),
+          stack: error.stack || "",
+          details: error.details || null,
+          cause: error.cause
+            ? {
+                name: error.cause.name || "",
+                message: error.cause.message || String(error.cause)
+              }
+            : null
+        };
+      }
+
+      function getDiagnostics() {
+        try {
+          const entries = JSON.parse(localStorage.getItem(DIAGNOSTICS_KEY) || "[]");
+          return Array.isArray(entries) ? entries : [];
+        } catch (error) {
+          console.error("[ModelPageText] Unable to read diagnostic logs.", error);
+          return [];
+        }
+      }
+
+      function logDiagnostic(context, error, details) {
+        const entry = {
+          timestamp: new Date().toISOString(),
+          context: context || "Unknown error",
+          url: window.location.href,
+          userAgent: navigator.userAgent,
+          error: serializeError(error),
+          details: details || (error && error.details) || null
+        };
+
+        console.error("[ModelPageText]", context, entry, error || "");
+
+        try {
+          const entries = getDiagnostics();
+          entries.push(entry);
+          localStorage.setItem(
+            DIAGNOSTICS_KEY,
+            JSON.stringify(entries.slice(-MAX_DIAGNOSTICS))
+          );
+        } catch (storageError) {
+          console.error("[ModelPageText] Unable to persist diagnostic log.", storageError);
+        }
+
+        return entry;
+      }
+
+      function createDiagnosticError(message, details, cause) {
+        const error = new Error(message);
+        error.details = details || null;
+        if (cause) {
+          error.cause = cause;
+        }
+        return error;
+      }
+
+      async function fetchResource(url) {
+        try {
+          return await fetch(url, { cache: "no-cache" });
+        } catch (error) {
+          throw createDiagnosticError("Network request failed.", { source: url }, error);
+        }
+      }
+
+      async function readJsonResponse(response, source) {
+        const text = await response.text();
+        const details = {
+          source: source,
+          responseUrl: response.url,
+          status: response.status,
+          contentType: response.headers.get("content-type") || "",
+          bodyLength: text.length,
+          bodyPreview: text.slice(0, MAX_BODY_PREVIEW)
+        };
+
+        try {
+          return JSON.parse(text.replace(/^\uFEFF/, ""));
+        } catch (error) {
+          throw createDiagnosticError("Invalid JSON response.", details, error);
+        }
+      }
+
+      function setStatus(message, isError) {
+        toolbarStatus.textContent = message;
+        toolbarStatus.classList.toggle("is-error", Boolean(isError));
+      }
+
+      function showError(title, message) {
+        renderReady = false;
+        stage.hidden = true;
+        statePanel.hidden = false;
+        stateTitle.textContent = title;
+        stateMessage.textContent = message;
+        toolbarTitle.textContent = title;
+        setStatus(message, true);
+        downloadButton.disabled = true;
+        printButton.disabled = true;
+        fitPreview();
+      }
+
+      function showNotFound() {
+        showError("Page not found", "The requested page is unavailable.");
+      }
+
+      function setText(element, value) {
+        element.textContent = value == null ? "" : String(value);
+      }
+
+      function buildModelLookup(catalog) {
+        const lookup = new Map();
+        Object.entries(catalog.models || {}).forEach(function (entry) {
+          const [key, value] = entry;
+          const keys = [key, value.id].concat(value.aliases || []);
+          keys.forEach(function (alias) {
+            lookup.set(normalizeLookupKey(alias), value);
+          });
+        });
+        return lookup;
+      }
+
+      function buildBatchLookup(registry) {
+        const lookup = new Map();
+        Object.entries(registry.models || {}).forEach(function (entry) {
+          const [modelId, batches] = entry;
+          lookup.set(normalizeLookupKey(modelId), batches);
+        });
+        return lookup;
+      }
+
+      function validateConfig(config) {
+        if (!config || config.schemaVersion !== 1) {
+          throw new Error("The model configuration has an unsupported schema version.");
+        }
+        const normalizedId = normalizeLookupKey(config.id);
+        if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(normalizedId)) {
+          throw new Error("The model ID must use lowercase letters, numbers, and hyphens.");
+        }
+        config.id = normalizedId;
+
+        [
+          "pageTitle",
+          "displayName",
+          "model",
+          "declarationModelNo",
+          "nominalVoltage",
+          "ratedCapacity",
+          "batterySize",
+          "batteryWeight"
+        ].forEach(function (key) {
+          if (!config[key] || !String(config[key]).trim()) {
+            throw new Error("The model configuration is missing required field: " + key);
+          }
+        });
+
+        if (
+          !config.materials ||
+          !Array.isArray(config.materials.columns) ||
+          config.materials.columns.length !== 3 ||
+          !Array.isArray(config.materials.rows) ||
+          config.materials.rows.length === 0
+        ) {
+          throw new Error("The model configuration must include a materials table.");
+        }
+
+        config.materials.rows.forEach(function (row, index) {
+          if (!row.chemical || !row.cas || !row.concentration) {
+            throw new Error("Materials row " + (index + 1) + " is incomplete.");
+          }
+        });
+      }
+
+      function renderMaterials(materials) {
+        const header = document.getElementById("materials-header");
+        const body = document.getElementById("materials-body");
+        header.replaceChildren();
+        body.replaceChildren();
+
+        materials.columns.forEach(function (column) {
+          const th = document.createElement("th");
+          th.textContent = column;
+          header.appendChild(th);
+        });
+
+        materials.rows.forEach(function (row) {
+          const tr = document.createElement("tr");
+          [row.chemical, row.cas, row.concentration].forEach(function (value) {
+            const td = document.createElement("td");
+            td.textContent = value;
+            tr.appendChild(td);
+          });
+          body.appendChild(tr);
+        });
+      }
+
+      function renderConfig(config) {
+        validateConfig(config);
+
+        setText(
+          document.getElementById("field-model"),
+          "Model: " + String(config.model).trim()
+        );
+        setText(
+          document.getElementById("field-batch"),
+          "Batch: " + String(batchValue).trim()
+        );
+        setText(document.getElementById("field-voltage"), config.nominalVoltage);
+        setText(
+          document.getElementById("field-capacity"),
+          String(config.ratedCapacity).trim() + FIELD_SUFFIXES.ratedCapacity
+        );
+        setText(
+          document.getElementById("field-size"),
+          String(config.batterySize).trim() + FIELD_SUFFIXES.batterySize
+        );
+        setText(
+          document.getElementById("field-weight"),
+          String(config.batteryWeight).trim() + FIELD_SUFFIXES.batteryWeight
+        );
+        setText(
+          document.getElementById("field-declaration-model"),
+          config.declarationModelNo
+        );
+        renderMaterials(config.materials);
+
+        toolbarTitle.textContent = config.pageTitle;
+        document.title = config.pageTitle;
+        paperStack.setAttribute("aria-busy", "false");
+      }
+
+      function waitForImage(url) {
+        return new Promise(function (resolve) {
+          const image = new Image();
+          image.onload = function () {
+            resolve();
+          };
+          image.onerror = function () {
+            logDiagnostic(
+              "Asset failed to load.",
+              createDiagnosticError("Image failed to load.", { src: url })
+            );
+            resolve();
+          };
+          image.src = url;
+        });
+      }
+
+      async function waitForAssets() {
+        await document.fonts.ready;
+        await Promise.all(
+          Array.from(document.querySelectorAll(".paper img")).map(function (image) {
+            if (image.complete && image.naturalWidth > 0) {
+              return Promise.resolve();
+            }
+            return waitForImage(image.currentSrc || image.src);
+          })
+        );
+      }
+
+      function fitPreview() {
+        if (stage.hidden) {
+          stage.style.height = "0px";
+          return;
+        }
+
+        const availableWidth = stage.clientWidth;
+        const naturalWidth = paperStack.offsetWidth;
+        if (!naturalWidth) {
+          stage.style.height = "0px";
+          return;
+        }
+
+        const scale = Math.min(1, availableWidth / naturalWidth);
+        const scaledWidth = naturalWidth * scale;
+        const horizontalOffset = Math.max(0, (availableWidth - scaledWidth) / 2);
+
+        paperStack.style.transform = "scale(" + scale + ")";
+        paperStack.style.left = horizontalOffset + "px";
+        stage.style.height = paperStack.offsetHeight * scale + "px";
+      }
+
+      function resetPaperTransform() {
+        paperStack.style.transform = "none";
+        paperStack.style.left = "0";
+      }
+
+      function safeFileName(value) {
+        return String(value || "")
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_")
+          .replace(/\s+/g, "_")
+          .slice(0, 80);
+      }
+
+      function isWeChatBrowser() {
+        return /MicroMessenger/i.test(navigator.userAgent);
+      }
+
+      function getPdfFileName() {
+        return (
+          safeFileName(modelConfig.id) +
+          "_" +
+          safeFileName(batchValue) +
+          ".pdf"
+        );
+      }
+
+      function canSharePdf(file) {
+        return Boolean(
+          file &&
+            typeof navigator.share === "function" &&
+            typeof navigator.canShare === "function" &&
+            navigator.canShare({ files: [file] })
+        );
+      }
+
+      function openDownloadHelp(file) {
+        downloadHelpReturnFocus = document.activeElement;
+        pendingPdfFile = file || null;
+        const canShare = canSharePdf(pendingPdfFile);
+        sharePdfButton.hidden = !canShare;
+        downloadHelpShareTip.hidden = !canShare;
+        downloadHelp.hidden = false;
+        document.body.classList.add("download-help-open");
+        requestAnimationFrame(function () {
+          closeDownloadHelpButton.focus();
+        });
+      }
+
+      function closeDownloadHelp() {
+        if (downloadHelp.hidden) {
+          return;
+        }
+        downloadHelp.hidden = true;
+        document.body.classList.remove("download-help-open");
+        pendingPdfFile = null;
+        downloadHelpShareTip.hidden = true;
+        sharePdfButton.hidden = true;
+        if (downloadHelpReturnFocus && typeof downloadHelpReturnFocus.focus === "function") {
+          downloadHelpReturnFocus.focus();
+        }
+      }
+
+      async function copyTextToClipboard(value) {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(value);
+          return;
+        }
+
+        const textArea = document.createElement("textarea");
+        textArea.value = value;
+        textArea.setAttribute("readonly", "");
+        textArea.style.position = "fixed";
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.select();
+        const copied = document.execCommand("copy");
+        textArea.remove();
+        if (!copied) {
+          throw new Error("Clipboard copy was not supported.");
+        }
+      }
+
+      async function sharePendingPdf() {
+        if (!pendingPdfFile) {
+          return;
+        }
+
+        try {
+          await navigator.share({
+            files: [pendingPdfFile],
+            title: pendingPdfFile.name
+          });
+          closeDownloadHelp();
+          setStatus("PDF ready to save.", false);
+        } catch (error) {
+          if (error.name === "AbortError") {
+            return;
+          }
+          logDiagnostic("PDF sharing failed.", error, {
+            fileName: pendingPdfFile.name
+          });
+          setStatus("Unable to save the PDF in this browser.", true);
+        }
+      }
+
+      async function capturePage(paper) {
+        return window.html2canvas(paper, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+          scrollX: 0,
+          scrollY: 0,
+          width: paper.offsetWidth,
+          height: paper.offsetHeight,
+          windowWidth: paper.offsetWidth,
+          windowHeight: paper.offsetHeight
+        });
+      }
+
+      async function downloadPdf() {
+        if (!renderReady || typeof window.html2canvas !== "function" || !window.jspdf) {
+          return;
+        }
+
+        const originalLabel = downloadButton.textContent;
+        downloadButton.disabled = true;
+        printButton.disabled = true;
+        downloadButton.textContent = "Generating...";
+        setStatus("Generating PDF...", false);
+
+        try {
+          resetPaperTransform();
+          await waitForAssets();
+          await new Promise(function (resolve) {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(resolve);
+            });
+          });
+
+          const pdf = new window.jspdf.jsPDF({
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait",
+            compress: true
+          });
+
+          for (let index = 0; index < papers.length; index += 1) {
+            setStatus("Generating PDF (" + (index + 1) + "/" + PAGE_COUNT + ")...", false);
+            const canvas = await capturePage(papers[index]);
+            const imageData = canvas.toDataURL("image/jpeg", 0.98);
+            if (index > 0) {
+              pdf.addPage();
+            }
+            pdf.addImage(imageData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+          }
+
+          const fileName = getPdfFileName();
+          if (isWeChatBrowser()) {
+            let pdfFile = null;
+            if (
+              typeof File === "function" &&
+              typeof navigator.share === "function" &&
+              typeof navigator.canShare === "function"
+            ) {
+              pdfFile = new File([pdf.output("blob")], fileName, {
+                type: "application/pdf"
+              });
+            }
+            openDownloadHelp(pdfFile);
+            setStatus("Open in browser to download the PDF.", false);
+            return;
+          }
+
+          pdf.save(fileName);
+          setStatus("PDF generated.", false);
+        } catch (error) {
+          logDiagnostic("PDF generation failed.", error, {
+            modelId: modelConfig && modelConfig.id,
+            batch: batchValue
+          });
+          setStatus("PDF generation failed. Use Print instead.", true);
+        } finally {
+          fitPreview();
+          downloadButton.disabled = !renderReady;
+          printButton.disabled = !renderReady;
+          downloadButton.textContent = originalLabel;
+        }
+      }
+
+      async function initialize() {
+        downloadButton.disabled = true;
+        printButton.disabled = true;
+        setStatus("Loading configuration...", false);
+
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const [manifestResponse, batchesResponse] = await Promise.all([
+            fetchResource(MANIFEST_URL),
+            fetchResource(BATCH_REGISTRY_URL)
+          ]);
+          if (!manifestResponse.ok || !batchesResponse.ok) {
+            throw createDiagnosticError("Unable to load model or batch configuration.", {
+              manifest: {
+                url: manifestResponse.url,
+                status: manifestResponse.status
+              },
+              batches: {
+                url: batchesResponse.url,
+                status: batchesResponse.status
+              }
+            });
+          }
+
+          manifest = await readJsonResponse(manifestResponse, MANIFEST_URL);
+          const batchRegistry = await readJsonResponse(
+            batchesResponse,
+            BATCH_REGISTRY_URL
+          );
+          const lookup = buildModelLookup(manifest);
+          const batchLookup = buildBatchLookup(batchRegistry);
+          const requestedModel = params.get("model") || manifest.default;
+          const entry = lookup.get(normalizeLookupKey(requestedModel));
+          const requestedBatch = (params.get("batch") || params.get("time") || "").trim();
+
+          if (!entry || !requestedBatch) {
+            logDiagnostic("Model page lookup failed.", null, {
+              requestedModel: requestedModel,
+              requestedBatch: requestedBatch,
+              reason: !entry ? "unknown-model" : "missing-batch"
+            });
+            showNotFound();
+            return;
+          }
+
+          const allowedBatches = batchLookup.get(normalizeLookupKey(entry.id));
+          if (!Array.isArray(allowedBatches) || !allowedBatches.includes(requestedBatch)) {
+            logDiagnostic("Model page lookup failed.", null, {
+              requestedModel: requestedModel,
+              requestedBatch: requestedBatch,
+              modelId: entry.id,
+              reason: "batch-not-allowed",
+              allowedBatches: allowedBatches || []
+            });
+            showNotFound();
+            return;
+          }
+
+          batchValue = requestedBatch;
+
+          const configResponse = await fetchResource(entry.file);
+          if (!configResponse.ok) {
+            throw createDiagnosticError("Unable to load model configuration.", {
+              source: entry.file,
+              responseUrl: configResponse.url,
+              status: configResponse.status,
+              contentType: configResponse.headers.get("content-type") || ""
+            });
+          }
+
+          modelConfig = await readJsonResponse(configResponse, entry.file);
+          if (normalizeLookupKey(modelConfig.id) !== normalizeLookupKey(entry.id)) {
+            throw createDiagnosticError("Model configuration ID does not match the manifest.", {
+              source: entry.file,
+              expectedId: entry.id,
+              actualId: modelConfig.id
+            });
+          }
+
+          statePanel.hidden = true;
+          stage.hidden = false;
+          renderConfig(modelConfig);
+          await waitForAssets();
+          fitPreview();
+          renderReady = true;
+          downloadButton.disabled = false;
+          printButton.disabled = false;
+          setStatus("Ready.", false);
+        } catch (error) {
+          logDiagnostic("Model page initialization failed.", error);
+          showError(
+            "Unable to load model",
+            "The page could not be loaded. Please check the link and try again."
+          );
+        }
+      }
+
+      printButton.addEventListener("click", function () {
+        window.print();
+      });
+      downloadButton.addEventListener("click", downloadPdf);
+      sharePdfButton.addEventListener("click", sharePendingPdf);
+      copyPageLinkButton.addEventListener("click", async function () {
+        try {
+          await copyTextToClipboard(window.location.href);
+          setStatus("Page link copied.", false);
+        } catch (error) {
+          logDiagnostic("Unable to copy the page link.", error);
+          setStatus("Unable to copy the page link.", true);
+        }
+      });
+      closeDownloadHelpButton.addEventListener("click", closeDownloadHelp);
+      downloadHelp.addEventListener("click", function (event) {
+        if (event.target === downloadHelp) {
+          closeDownloadHelp();
+        }
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !downloadHelp.hidden) {
+          closeDownloadHelp();
+        }
+      });
+      window.addEventListener("resize", fitPreview);
+      window.addEventListener("beforeprint", resetPaperTransform);
+      window.addEventListener("afterprint", fitPreview);
+
+      window.modelPageDiagnostics = {
+        get: getDiagnostics,
+        clear: function () {
+          try {
+            localStorage.removeItem(DIAGNOSTICS_KEY);
+          } catch (error) {
+            console.error("[ModelPageText] Unable to clear diagnostic logs.", error);
+          }
+        }
+      };
+
+      window.addEventListener("error", function (event) {
+        if (event.error) {
+          logDiagnostic("Unhandled runtime error.", event.error);
+          return;
+        }
+        logDiagnostic(
+          "Unhandled runtime error.",
+          createDiagnosticError(event.message || "Unknown runtime error.", {
+            source: event.filename || "",
+            line: event.lineno || 0,
+            column: event.colno || 0
+          })
+        );
+      });
+
+      window.addEventListener("unhandledrejection", function (event) {
+        logDiagnostic("Unhandled promise rejection.", event.reason);
+      });
+
+      initialize();
+    })();
+  </script>
+</body>
+</html>
