@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "12V10",
+  "pageTitle": "6FM10 (12V10AH)",
+  "displayName": "6FM10  (12V10AH)",
+  "model": "6FM10 (12V10AH)",
+  "declarationModelNo": "6-FM-10  12V10",
+  "nominalVoltage": "12V",
+  "ratedCapacity": "10Ah",
+  "batterySize": "152x99x101",
+  "batteryWeight": "2.9",
+  "materials": {
+    "columns": [
+      "Chemical Name",
+      "CAS-No.",
+      "Concentration/weight by weight(% wt)"
+    ],
+    "rows": [
+      {
+        "chemical": "Lead(Pb,PbO₂,PbSO₄)",
+        "cas": "7439-92-1",
+        "concentration": "About 70%"
+      },
+      {
+        "chemical": "Sulfuric Acid",
+        "cas": "7664-93-9",
+        "concentration": "About 20%"
+      },
+      {
+        "chemical": "Container (ABS)",
+        "cas": "9003-56-9",
+        "concentration": "About 5%"
+      },
+      {
+        "chemical": "Fiberglass Separator",
+        "cas": "65997-17-3",
+        "concentration": "About 5%"
+      }
+    ]
+  }
+}
