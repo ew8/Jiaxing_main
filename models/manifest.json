@@ -71,6 +71,17 @@
         "6-FM-14",
         "12V14AH",
         "6FM14 (12V14AH)"
+      ],
+    "SX12V9": {
+      "id": "SX12v9",
+      "file": "./models/SX12V9.json",
+      "aliases": [
+        "12V9",
+        "12v9",
+        "6FM9",
+        "6-FM-9",
+        "12V9AH",
+        "6FM9 (12V9AH)"
       ]
     }
   }
