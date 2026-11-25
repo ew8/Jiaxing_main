@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "12V9",
+  "pageTitle": "6FM9 (12V9AH)",
+  "displayName": "6FM9  (12V9AH)",
+  "model": "6FM9 (12V9AH)",
+  "declarationModelNo": "6-FM-9  12V9",
+  "nominalVoltage": "12V9",
+  "ratedCapacity": "7Ah",
+  "batterySize": "150x66x100",
+  "batteryWeight": "2.1",
+  "materials": {
+    "columns": [
+      "Chemical Name",
+      "CAS-No.",
+      "Concentration/weight by weight(% wt)"
+    ],
+    "rows": [
+      {
+        "chemical": "Lead(Pb,PbO₂,PbSO₄)",
+        "cas": "7439-92-1",
+        "concentration": "About 70%"
+      },
+      {
+        "chemical": "Sulfuric Acid",
+        "cas": "7664-93-9",
+        "concentration": "About 20%"
+      },
+      {
+        "chemical": "Container (ABS)",
+        "cas": "9003-56-9",
+        "concentration": "About 5%"
+      },
+      {
+        "chemical": "Fiberglass Separator",
+        "cas": "65997-17-3",
+        "concentration": "About 5%"
+      }
+    ]
+  }
+}
