@@ -71,14 +71,16 @@
         "6-FM-14",
         "12V14AH",
         "6FM14 (12V14AH)"
-      ]},
+      ]
+    },
     "SX12V9": {
       "id": "SX12v9",
       "file": "./models/SX12V9.json",
       "aliases": [
         "SX12V9",
         "SX12v9"
-      ]},
+      ]
+    },
     "12V9": {
       "id": "12v9",
       "file": "./models/12V9.json",
@@ -89,7 +91,8 @@
         "6-FM-9",
         "12V9AH",
         "6FM9 (12V9AH)"
-      ]},
+      ]
+    },
     "12V9SX": {
       "id": "12v9SX",
       "file": "./models/12V9SX.json",
@@ -108,6 +111,7 @@
         "12-FM-7",
         "24V7AH",
         "12FM7 (24V7AH)"
-      ]}
+      ]
     }
   }
+}
