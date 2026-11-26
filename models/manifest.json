@@ -90,7 +90,7 @@
         "12V9AH",
         "6FM9 (12V9AH)"
       ]},
-    "12V9": {
+    "12V9SX": {
       "id": "12v9SX",
       "file": "./models/12V9SX.json",
       "aliases": [
