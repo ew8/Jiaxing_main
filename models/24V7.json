@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "SX24V7",
+  "pageTitle": "12FM7 (24V7AH)",
+  "displayName": "12FM7  (24V7AH)",
+  "model": "12FM7 (24V7AH)",
+  "declarationModelNo": "12-FM-7  24V7",
+  "nominalVoltage": "24V7",
+  "ratedCapacity": "7Ah",
+  "batterySize": "187x102x100",
+  "batteryWeight": "3.8",
+  "materials": {
+    "columns": [
+      "Chemical Name",
+      "CAS-No.",
+      "Concentration/weight by weight(% wt)"
+    ],
+    "rows": [
+      {
+        "chemical": "Lead(Pb,PbO₂,PbSO₄)",
+        "cas": "7439-92-1",
+        "concentration": "About 70%"
+      },
+      {
+        "chemical": "Sulfuric Acid",
+        "cas": "7664-93-9",
+        "concentration": "About 20%"
+      },
+      {
+        "chemical": "Container (ABS)",
+        "cas": "9003-56-9",
+        "concentration": "About 5%"
+      },
+      {
+        "chemical": "Fiberglass Separator",
+        "cas": "65997-17-3",
+        "concentration": "About 5%"
+      }
+    ]
+  }
+}
