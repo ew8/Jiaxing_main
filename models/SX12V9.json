@@ -6,7 +6,7 @@
   "model": "6FM9 (12V9AH)",
   "declarationModelNo": "6-FM-9  12V9",
   "nominalVoltage": "12V9",
-  "ratedCapacity": "7Ah",
+  "ratedCapacity": "9Ah",
   "batterySize": "150x66x100",
   "batteryWeight": "2.1",
   "materials": {
